@@ -1775,3 +1775,23 @@ html, body { overflow-x: clip; }
   .belief-row { grid-template-columns: 2.2rem 1fr; }
   .belief-line { font-size: clamp(1.8rem, 9vw, 2.4rem); }
 }
+
+/* ============================================================
+   MOBILE — show the SOI sphere on slide 01
+   ============================================================ */
+@media (max-width: 1023px) {
+  .slide .soi-visual {
+    display: flex;
+    height: min(86vw, 380px);
+    overflow: hidden;            /* orbit tiles never cause horizontal scroll */
+    margin-top: clamp(1.5rem, 4vh, 3rem);
+  }
+  .slide .soi-rings { width: min(82vw, 360px); }
+  .soi-tile { width: clamp(60px, 18vw, 78px); }
+  .tile-label { font-size: 0.5rem; letter-spacing: 0.18em; }
+  .soi-core { width: clamp(84px, 24vw, 110px); }
+  .core-mark { width: clamp(42px, 12vw, 56px); }
+  /* slide 01 stacks: thesis text, then sphere centered */
+  #s-investing { min-height: auto; padding-bottom: clamp(3rem, 7vh, 5rem); }
+  .slide .soi-visual { align-self: center; width: 100%; }
+}

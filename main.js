@@ -177,33 +177,35 @@ document.querySelectorAll(".reveal").forEach((el) => {
   });
 
   activate(0);
+})();
 
-  /* SOI sphere: tiles orbit the core — one slow revolution */
-  (() => {
-    const rings = document.querySelector(".soi-rings");
-    if (!rings) return;
-    // radius as a fraction of the ring field; angle = current visual position
-    const orbiters = [
-      { el: document.querySelector(".t-edu"),  r: 0.46, a: -52 },
-      { el: document.querySelector(".t-rx"),   r: 0.38, a: 178 },
-      { el: document.querySelector(".t-care"), r: 0.44, a: 34 },
-      { el: document.querySelector(".t-pod"),  r: 0.31, a: 108 },
-    ].filter(o => o.el);
-    // re-anchor every tile at the center; orbit drives x/y from there
-    orbiters.forEach(o =>
-      gsap.set(o.el, { left: "50%", top: "50%", right: "auto", bottom: "auto", xPercent: -50, yPercent: -50 })
-    );
-    const state = { spin: 0 };
-    const place = () => {
-      const R = rings.offsetWidth / 2;
-      orbiters.forEach(o => {
-        const a = ((o.a + state.spin) * Math.PI) / 180;
-        gsap.set(o.el, { x: Math.cos(a) * R * 2 * o.r, y: Math.sin(a) * R * 2 * o.r });
-      });
-    };
-    place();
+/* ============ SOI sphere: tiles orbit the core (all viewports) ============ */
+(() => {
+  const rings = document.querySelector(".soi-rings");
+  if (!rings) return;
+  const orbiters = [
+    { el: document.querySelector(".t-edu"),  r: 0.46, a: -52 },
+    { el: document.querySelector(".t-rx"),   r: 0.38, a: 178 },
+    { el: document.querySelector(".t-care"), r: 0.44, a: 34 },
+    { el: document.querySelector(".t-pod"),  r: 0.31, a: 108 },
+  ].filter(o => o.el);
+  if (!orbiters.length) return;
+  // re-anchor every tile at the center; orbit drives x/y from there
+  orbiters.forEach(o =>
+    gsap.set(o.el, { left: "50%", top: "50%", right: "auto", bottom: "auto", xPercent: -50, yPercent: -50 })
+  );
+  const state = { spin: 0 };
+  const place = () => {
+    const R = rings.offsetWidth / 2;
+    orbiters.forEach(o => {
+      const a = ((o.a + state.spin) * Math.PI) / 180;
+      gsap.set(o.el, { x: Math.cos(a) * R * 2 * o.r, y: Math.sin(a) * R * 2 * o.r });
+    });
+  };
+  place();
+  if (!REDUCED)
     gsap.to(state, { spin: 360, duration: 70, repeat: -1, ease: "none", onUpdate: place });
-  })();
+  window.addEventListener("resize", place);
 })();
 
 /* ---------- closing bridge ---------- */
