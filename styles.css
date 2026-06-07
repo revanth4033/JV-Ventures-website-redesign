@@ -1685,3 +1685,93 @@ html, body { overflow-x: clip; }
   box-shadow: 0 1px 0 rgba(244, 246, 251, 0.08), 0 10px 30px rgba(4, 14, 36, 0.25);
 }
 .site-header.tucked { transform: translateY(-100%); }
+
+/* ============================================================
+   MOBILE — homepage deck becomes a vertical stack
+   ============================================================ */
+@media (max-width: 1023px) {
+  /* unpin: deck flows as normal stacked sections */
+  .deck-viewport { height: auto; overflow: visible; }
+  .deck-track { display: block; width: auto; }
+  .slide {
+    flex: none; width: 100%; height: auto; min-height: auto;
+    transform: none !important;
+    padding: clamp(5.5rem, 14vh, 7rem) var(--gutter) clamp(3.5rem, 8vh, 5rem);
+  }
+  .slide .slide-content, .slide .slide-visual { transform: none !important; opacity: 1 !important; }
+  .slide .line-inner { transform: none !important; }
+  .deck-rail, .deck-cue { display: none; }
+
+  /* slide 01 — thesis, sphere stays hidden, give it air */
+  .slide--investing, #s-investing { min-height: 88vh; }
+
+  /* slide 02 — numbers wall: quad bg as 2x2, numbers 2x2 below */
+  .slide--impact { display: flex; flex-direction: column; }
+  .slide--impact .slide-content { position: relative; height: auto; }
+  .fb-quad { flex-wrap: wrap; }
+  .fb-slice { flex: 0 0 50%; height: 50%; }
+  .num-row { margin-top: clamp(2rem, 5vh, 3rem); gap: 2.2rem 0; }
+  .nstat:nth-child(3) { border-left: 0; }
+  .nstat .stat-num { font-size: clamp(2.6rem, 11vw, 4rem); }
+
+  /* slide 03 — eco spread: image as a block above the text, not full-bleed */
+  .slide--eco { display: flex; flex-direction: column; align-items: stretch; }
+  .slide--eco .fullbleed { position: relative; inset: auto; height: 44vh; margin-bottom: 1.8rem; }
+  .slide--eco .slide-content { max-width: 100%; }
+  .eco-veil { background: linear-gradient(0deg, rgba(7,25,60,0.6), rgba(7,25,60,0.1)); }
+
+  /* slide 04 — platforms: strips as a 2x2 grid of real cards */
+  .slide--plat { display: flex; flex-direction: column; }
+  .plat-strips {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 0.9rem; flex: none;
+  }
+  .strip, .strip.open { aspect-ratio: 3 / 4; }
+  .strip-img { width: 100%; inset: 0; filter: none !important; }
+  .strip-tab { display: none; }
+  .strip-logo, .strip-stat { opacity: 1 !important; }
+  .strip-stat { left: 0.7rem; right: 0.7rem; bottom: 0.7rem; padding: 0.7rem 0.8rem; }
+  .strip-desc { display: none; }
+  .strip-logo { height: 34px; }
+  .plat-head { gap: 0.8rem; }
+
+  /* the close slide can shrink on mobile */
+  .act-close { min-height: 78svh; }
+}
+
+@media (max-width: 600px) {
+  .num-row { grid-template-columns: 1fr 1fr; }
+  .plat-strips { grid-template-columns: 1fr 1fr; }
+  .slide-title { font-size: clamp(2.6rem, 13vw, 4rem); }
+}
+
+/* ============================================================
+   MOBILE — final overrides (must win over later-appended desktop rules)
+   ============================================================ */
+@media (max-width: 1023px) {
+  /* belief rows: 2-col, full opacity (no scroll-dim dependency), real tiles */
+  .belief-row {
+    grid-template-columns: 2.4rem 1fr;
+    opacity: 1;
+    column-gap: 1rem; row-gap: 1rem;
+    padding: 1.8rem 0;
+  }
+  .belief-line { font-size: clamp(1.9rem, 8.5vw, 2.8rem); }
+  .belief-tile {
+    grid-column: 2; width: 100%; max-width: 100%;
+    aspect-ratio: 16 / 10;
+    filter: grayscale(0) brightness(0.95); transform: none;
+  }
+
+  /* impact slide: clear gap between title and number wall */
+  .slide--impact .slide-content { gap: 0.4rem; }
+  .num-row { margin-top: clamp(2.2rem, 6vh, 3.2rem); }
+
+  /* models: ensure rows read as icon + stacked text */
+  .model-split .model-row { opacity: 1; }
+}
+@media (max-width: 600px) {
+  /* belief tile drops below the headline for breathing room */
+  .belief-row { grid-template-columns: 2.2rem 1fr; }
+  .belief-line { font-size: clamp(1.8rem, 9vw, 2.4rem); }
+}

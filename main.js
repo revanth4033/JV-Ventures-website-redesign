@@ -8,6 +8,7 @@
 gsap.registerPlugin(ScrollTrigger);
 
 const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const MOBILE = window.matchMedia("(max-width: 1023px)").matches;
 const EASE = "power3.out";
 let lenis = null;
 
@@ -95,13 +96,30 @@ document.querySelectorAll(".reveal").forEach((el) => {
     if (i === 1) countStats();
   };
 
-  if (REDUCED) {
-    // accessibility fallback: vertical static presentation
+  if (REDUCED || MOBILE) {
+    // mobile / reduced-motion: vertical stack, no pin, no horizontal scroll
     slides.forEach((s) => s.classList.add("active"));
-    document.querySelectorAll(".stat-card").forEach((card) => {
-      card.querySelector(".stat-num").textContent =
-        (+card.dataset.count).toLocaleString("en-IN") + (card.dataset.suffix || "");
-    });
+    strips.forEach((st) => st.classList.add("open")); // all platforms shown
+    if (REDUCED) {
+      document.querySelectorAll(".stat-card").forEach((card) => {
+        card.querySelector(".stat-num").textContent =
+          (+card.dataset.count).toLocaleString("en-IN") + (card.dataset.suffix || "");
+      });
+    } else {
+      // counters animate when each scrolls into view
+      document.querySelectorAll(".stat-card").forEach((card) => {
+        ScrollTrigger.create({
+          trigger: card, start: "top 85%", once: true,
+          onEnter: () => {
+            const numEl = card.querySelector(".stat-num");
+            const target = +card.dataset.count, suffix = card.dataset.suffix || "";
+            const obj = { v: 0 };
+            gsap.to(obj, { v: target, duration: 1.2, ease: "power2.out",
+              onUpdate: () => (numEl.textContent = Math.round(obj.v).toLocaleString("en-IN") + suffix) });
+          },
+        });
+      });
+    }
     return;
   }
 
