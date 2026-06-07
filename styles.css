@@ -1795,3 +1795,6 @@ html, body { overflow-x: clip; }
   #s-investing { min-height: auto; padding-bottom: clamp(3rem, 7vh, 5rem); }
   .slide .soi-visual { align-self: center; width: 100%; }
 }
+
+/* descender room for masked slide titles (g, y, p tails were clipping) */
+.slide-title .line { padding-bottom: 0.12em; margin-bottom: -0.12em; }
