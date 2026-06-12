@@ -6,7 +6,7 @@
 const PLATFORMS = {
   powered: {
     name: "PowerEd", sector: "Education", wordmark: "assets/plat/wm-powered.png",
-    hero: "assets/plat/edu-cappella.jpg",
+    hero: "assets/plat/edu-cappella.jpg", video: "assets/plat/hero-powered.mp4",
     tagline: "An all-encompassing K-12 education platform cultivating vibrant learning environments across the full lifecycle of the education experience.",
     intro: "PowerEd builds the institutions, the operating models, and the everyday services that let schools focus on learning — from the buildings themselves to the buses that reach them.",
     totals: [
@@ -39,7 +39,7 @@ const PLATFORMS = {
 
   powerx: {
     name: "PoweRx", sector: "Lifesciences", wordmark: "assets/plat/wm-powerx.png",
-    hero: "assets/plat/rx-infra.jpg",
+    hero: "assets/plat/rx-infra.jpg", video: "assets/plat/hero-powerx.mp4",
     tagline: "A lifesciences ecosystem driving innovation through purpose-built infrastructure, advanced research environments, and integrated support services.",
     intro: "PoweRx creates enabling ecosystems that combine world-class laboratories, specialised operational services, and collaborative environments — letting scientists, researchers, and businesses focus on discovery, development, and growth.",
     totals: [
@@ -64,7 +64,7 @@ const PLATFORMS = {
 
   powercare: {
     name: "PowerCare", sector: "Healthcare", wordmark: "assets/plat/wm-powercare.png",
-    hero: "assets/plat/care-medical.jpg",
+    hero: "assets/plat/care-medical.jpg", video: "assets/plat/hero-powercare.mp4",
     tagline: "A healthcare solutions network designed around patient and practitioner needs — creating seamless care experiences through thoughtfully planned environments and high-quality infrastructure.",
     intro: "PowerCare reimagines where care happens: experiential medical environments and flexible clinical spaces built around the people who deliver and receive care.",
     totals: [
@@ -87,7 +87,7 @@ const PLATFORMS = {
 
   powerpod: {
     name: "PowerPod", sector: "Managed Living", wordmark: "assets/plat/wm-powerpod.png",
-    hero: "assets/plat/pod-madison.jpg",
+    hero: "assets/plat/pod-madison.jpg", video: "assets/plat/hero-powerpod.mp4",
     tagline: "An infrastructure platform reimagining how professionals live — from purpose-built living spaces to integrated hospitality experiences.",
     intro: "PowerPod brings institutional discipline to hospitality and living, delivering curated dining, lifestyle, and service experiences for professionals across cities.",
     totals: [
@@ -117,6 +117,20 @@ document.title = `${P.name} — JV Ventures`;
 /* ---------- render ---------- */
 const esc = (s) => s;
 document.querySelector(".plat-hero-bg").style.backgroundImage = `url(${P.hero})`;
+// hero video: desktop only (videos are heavy); poster image is the mobile fallback
+(() => {
+  const vid = document.querySelector(".plat-hero-video");
+  if (!vid || !P.video) return;
+  const allow = window.matchMedia("(min-width: 1024px)").matches &&
+                !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!allow) { vid.remove(); return; }
+  vid.poster = P.hero;
+  vid.src = P.video;
+  vid.load();
+  const tryPlay = () => vid.play().catch(() => {});
+  vid.addEventListener("canplay", () => vid.classList.add("ready"), { once: true });
+  tryPlay();
+})();
 const wm = document.querySelector(".plat-wordmark");
 wm.src = P.wordmark; wm.alt = P.name;
 document.querySelector(".plat-tagline").textContent = P.tagline;
@@ -199,7 +213,7 @@ document.querySelectorAll(".reveal").forEach((el) => {
 if (!REDUCED) {
   gsap.from(".plat-wordmark", { opacity: 0, y: 30, duration: 1, ease: EASE, delay: 0.2 });
   gsap.from(".plat-tagline", { opacity: 0, y: 24, duration: 0.9, ease: EASE, delay: 0.5 });
-  gsap.to(".plat-hero-bg", { yPercent: 18, ease: "none",
+  gsap.to(".plat-hero-media", { yPercent: 18, ease: "none",
     scrollTrigger: { trigger: ".plat-hero", start: "top top", end: "bottom top", scrub: 0.4 } });
 }
 
