@@ -30,6 +30,8 @@ export const route = (href?: string): string => {
 export const getSiteSettings = () => inventory.siteSettings
 export const getHomePage = () => inventory.homePage
 export const getAboutPage = () => inventory.aboutPage
+export const getTeamPage = () => inventory.teamPage
+export const getContactPage = () => inventory.contactPage
 export const getPlatforms = (): Platform[] =>
   [...inventory.platforms].sort((a, b) => a.order - b.order)
 export const getPlatform = (slug: string): Platform | undefined =>

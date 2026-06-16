@@ -22,13 +22,6 @@ export function About({ about, settings }: { about: AboutPage; settings: SiteSet
     () => {
       const root = scope.current!
 
-      /* red thread grows with scroll */
-      gsap.to('.thread-line', {
-        scaleY: 1,
-        ease: 'none',
-        scrollTrigger: { trigger: root, start: 'top top', end: 'bottom bottom', scrub: 0.4 },
-      })
-
       /* act label tracks the section in view */
       const idxEl = root.querySelector<HTMLElement>('#act-index')
       const nameEl = root.querySelector<HTMLElement>('#act-name')
@@ -176,13 +169,6 @@ export function About({ about, settings }: { about: AboutPage; settings: SiteSet
 
   return (
     <div ref={scope}>
-      <div className="thread" aria-hidden="true">
-        <div className="thread-line" />
-        <div className="thread-act">
-          <span id="act-index">00</span>
-          <span id="act-name">{hero.actName}</span>
-        </div>
-      </div>
 
       <main id="top">
         {/* ACT 0 · ORIGIN */}

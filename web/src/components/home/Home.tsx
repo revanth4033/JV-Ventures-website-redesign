@@ -324,11 +324,12 @@ export function Home({ home }: { home: HomePage }) {
     () => {
       const rings = scope.current?.querySelector<HTMLElement>('.soi-rings')
       if (!rings) return
+      // even orbit: same radius, angles 90° apart (top / right / bottom / left)
       const defs = [
-        { sel: '.t-edu', r: 0.46, a: -52 },
-        { sel: '.t-rx', r: 0.38, a: 178 },
-        { sel: '.t-care', r: 0.44, a: 34 },
-        { sel: '.t-pod', r: 0.31, a: 108 },
+        { sel: '.t-edu', r: 0.42, a: -90 },
+        { sel: '.t-rx', r: 0.42, a: 0 },
+        { sel: '.t-care', r: 0.42, a: 90 },
+        { sel: '.t-pod', r: 0.42, a: 180 },
       ]
       const orbiters = defs
         .map((d) => ({ ...d, el: scope.current!.querySelector<HTMLElement>(d.sel) }))

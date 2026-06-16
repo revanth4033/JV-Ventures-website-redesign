@@ -1,13 +1,15 @@
 import 'server-only'
 
 import { prisma } from '@/lib/prisma'
-import type { AboutPage, HomePage, Platform, SiteSettings } from './types'
+import type { AboutPage, ContactPage, HomePage, Platform, SiteSettings, TeamPage } from './types'
 import {
   getAboutPage,
+  getContactPage,
   getHomePage,
   getPlatform as staticPlatform,
   getPlatforms as staticPlatforms,
   getSiteSettings,
+  getTeamPage,
 } from './index'
 
 // Read a singleton's JSON; fall back to the bundled inventory if the DB is empty
@@ -24,6 +26,8 @@ async function singleton<T>(key: string, fallback: () => T): Promise<T> {
 export const loadSiteSettings = () => singleton<SiteSettings>('siteSettings', getSiteSettings)
 export const loadHomePage = () => singleton<HomePage>('homePage', getHomePage)
 export const loadAboutPage = () => singleton<AboutPage>('aboutPage', getAboutPage)
+export const loadTeamPage = () => singleton<TeamPage>('teamPage', getTeamPage)
+export const loadContactPage = () => singleton<ContactPage>('contactPage', getContactPage)
 
 export async function loadPlatforms(): Promise<Platform[]> {
   try {

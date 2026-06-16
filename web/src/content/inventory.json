@@ -21,8 +21,8 @@
           { "name": "PowerPod", "sector": "Managed Living", "href": "platform.html?p=powerpod" }
         ]
       },
-      { "label": "Team", "href": "#" },
-      { "label": "Contact Us", "href": "#contact", "cta": true }
+      { "label": "Team", "href": "/team" },
+      { "label": "Contact Us", "href": "/contact", "cta": true }
     ],
     "closingQuote": {
       "lines": [
@@ -37,7 +37,7 @@
       "links": [
         { "label": "About Us", "href": "about.html" },
         { "label": "Platforms", "href": "platform.html?p=powered" },
-        { "label": "Team", "href": "#" },
+        { "label": "Team", "href": "/team" },
         { "label": "connect@jv.ventures", "href": "mailto:connect@jv.ventures" },
         { "label": "LinkedIn", "href": "#", "external": true }
       ]
@@ -185,6 +185,82 @@
         { "num": "06", "icon": "assets/scan-heart.png", "title": "Access", "subtitle": "Healthcare & essential services" }
       ]
     }
+  },
+
+  "teamPage": {
+    "seo": { "title": "Team" },
+    "hero": {
+      "actName": "The People",
+      "kicker": "The people",
+      "title": { "lines": ["Behind", "the <em>platforms</em>"], "emphasis": "line:1" },
+      "intro": "Operators, founders, and investors who turn strategic white space into enduring institutions — across education, lifesciences, healthcare, and managed living.",
+      "stats": [
+        { "value": 16, "label": "Leaders" },
+        { "value": 10, "label": "Ventures" },
+        { "value": 4, "label": "Platforms" }
+      ]
+    },
+    "foundersTitle": "Co-Founders",
+    "founders": [
+      { "name": "Jasmeet Chhabra", "role": "Co-Founder", "photo": "assets/team/jasmeet-chhabra.png", "highlights": ["20+ years", "$400M+ deployed", "Real estate · Infra · PE"], "bio": "Twenty years across real estate, infrastructure, capital-markets fundraising, and private equity — focused on ideation, innovation, and strategic investments in socially relevant and alternative assets. Has deployed over $400 million across lifesciences, education, healthcare, and managed habitats." },
+      { "name": "Vishal Goel", "role": "Co-Founder", "photo": "assets/team/vishal-goel.png", "highlights": ["20+ years", "$600M+ deployed", "Harvard HBS & GSD"], "bio": "Harvard Business School and Harvard Graduate School of Design alumnus with twenty years building integrated ecosystems. Advised the Government of Andhra Pradesh on India's first Biotech Policy and helped shape Hyderabad's Genome Valley. Has led deployment of over $600 million across sectors." }
+    ],
+    "rosterTitle": "Portfolio leadership",
+    "rosterCopy": "The operators running the businesses we build — venture by venture.",
+    "groups": [
+      { "venture": "Cappella", "members": [
+        { "name": "Anuraag Jhunjhunwala", "role": "CEO", "photo": "assets/team/anuraag-jhunjhunwala.png" },
+        { "name": "Sai Krishna Narla", "role": "CBO", "photo": "assets/team/sai-krishna-narla.png" }
+      ] },
+      { "venture": "Crimson", "members": [
+        { "name": "Kirti Sharma", "role": "Co-CEO", "photo": "assets/team/kirti-sharma.png" },
+        { "name": "Husien Dohadwala", "role": "Co-CEO", "photo": "assets/team/husien-dohadwala.png" }
+      ] },
+      { "venture": "Inventre", "members": [
+        { "name": "Bheem Reddy", "role": "Business Head", "photo": "assets/team/bheem-reddy.png" }
+      ] },
+      { "venture": "Abeona", "members": [
+        { "name": "Santosh Chaubey", "role": "Head", "photo": "assets/team/santosh-chaubey.png" }
+      ] },
+      { "venture": "NXT", "members": [
+        { "name": "Milind Ravi", "role": "Co-Founder & CEO", "photo": "assets/team/milind-ravi.png" }
+      ] },
+      { "venture": "GVRP", "members": [
+        { "name": "Kalyan Korisapati", "role": "Co-Founder & CEO", "photo": "assets/team/kalyan-korisapati.jpeg" },
+        { "name": "Anirudh Srinivasan", "role": "Co-Founder & Head of Finance", "photo": "assets/team/anirudh-srinivasan.png" }
+      ] },
+      { "venture": "The Medical Centre", "members": [
+        { "name": "Raja Jain", "role": "CEO", "photo": "assets/team/raja-jain.png" }
+      ] },
+      { "venture": "Madison", "members": [
+        { "name": "Vikash Malpani", "role": "CEO", "photo": "assets/team/vikash-malpani.jpeg" },
+        { "name": "Aakarsh Jalan", "role": "CIO", "photo": "assets/team/aakarsh-jalan.png" }
+      ] },
+      { "venture": "Alpha Alternatives", "members": [
+        { "name": "Chetna Kalantry", "role": "Co-Founder & CEO", "photo": "assets/team/chetna-kalantry.png" }
+      ] },
+      { "venture": "Limitless", "members": [
+        { "name": "Manvi Chhabra", "role": "Co-Founder", "photo": "assets/team/manvi-chhabra.png" }
+      ] }
+    ]
+  },
+
+  "contactPage": {
+    "seo": { "title": "Contact" },
+    "hero": {
+      "actName": "Contact",
+      "kicker": "Contact",
+      "title": { "lines": ["Start a", "conversation"], "emphasis": "line:1" },
+      "intro": "Whether you're an investor, an operator, or a partner-to-be — tell us what you're building. We read every message that comes through."
+    },
+    "email": "connect@jv.ventures",
+    "enquiryTypes": ["General", "Partnerships", "Careers", "Press & Media"],
+    "offices": [
+      { "city": "Jubilee Hills", "region": "Hyderabad", "address": "Suite 303, Niharika Jubilee One, Nandagiri Hills, Jubilee Hills, Hyderabad 500033, Telangana, India" },
+      { "city": "Financial District", "region": "Hyderabad", "address": "24th Floor, One West, Nanakramguda Service Road, Financial District, Hyderabad 500008, Telangana, India" }
+    ],
+    "presence": "India · Dubai · Singapore",
+    "formIntro": "Send us a note"
   },
 
   "platforms": [

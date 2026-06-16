@@ -109,9 +109,36 @@ export interface Platform {
   totals: Total[]; categories: Category[]
 }
 
+// ---- Team ----
+export interface TeamMember { name: string; role: string; bio?: string; photo?: string; highlights?: string[] }
+export interface TeamGroup { venture: string; members: TeamMember[] }
+export interface TeamPage {
+  seo: { title: string }
+  hero: { actName: string; kicker: string; title: AnimatedTitle; intro: string; stats: HomeStat[] }
+  foundersTitle: string
+  founders: TeamMember[]
+  rosterTitle: string
+  rosterCopy: string
+  groups: TeamGroup[]
+}
+
+// ---- Contact ----
+export interface Office { city: string; region: string; address: string }
+export interface ContactPage {
+  seo: { title: string }
+  hero: { actName: string; kicker: string; title: AnimatedTitle; intro: string }
+  email: string
+  enquiryTypes: string[]
+  offices: Office[]
+  presence: string
+  formIntro: string
+}
+
 export interface Inventory {
   siteSettings: SiteSettings
   homePage: HomePage
   aboutPage: AboutPage
+  teamPage: TeamPage
+  contactPage: ContactPage
   platforms: Platform[]
 }
