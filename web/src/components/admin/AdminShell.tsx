@@ -1,17 +1,53 @@
 import Link from 'next/link'
+import {
+  Boxes,
+  ChevronRight,
+  ExternalLink,
+  FileText,
+  House,
+  Image as ImageIcon,
+  LayoutDashboard,
+  LogOut,
+  Settings,
+} from 'lucide-react'
 
 import { logout } from '@/app/(admin)/admin/auth-actions'
+import { getSession } from '@/lib/session'
+import { RailToggle } from './RailToggle'
 
 const NAV = [
-  { href: '/admin', label: 'Dashboard', key: 'dashboard' },
-  { href: '/admin/site-settings', label: 'Site Settings', key: 'site-settings' },
-  { href: '/admin/home', label: 'Home Page', key: 'home' },
-  { href: '/admin/about', label: 'About Page', key: 'about' },
-  { href: '/admin/platforms', label: 'Platforms', key: 'platforms' },
-  { href: '/admin/media', label: 'Media', key: 'media' },
+  {
+    label: 'Overview',
+    items: [{ href: '/admin', key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard }],
+  },
+  {
+    label: 'Pages',
+    items: [
+      { href: '/admin/home', key: 'home', label: 'Home Page', icon: House },
+      { href: '/admin/about', key: 'about', label: 'About Page', icon: FileText },
+      { href: '/admin/platforms', key: 'platforms', label: 'Platforms', icon: Boxes },
+    ],
+  },
+  {
+    label: 'Library',
+    items: [{ href: '/admin/media', key: 'media', label: 'Media', icon: ImageIcon }],
+  },
+  {
+    label: 'Configuration',
+    items: [{ href: '/admin/site-settings', key: 'site-settings', label: 'Site Settings', icon: Settings }],
+  },
 ]
 
-export function AdminShell({
+const LABELS: Record<string, string> = {
+  dashboard: 'Dashboard',
+  home: 'Home Page',
+  about: 'About Page',
+  platforms: 'Platforms',
+  media: 'Media',
+  'site-settings': 'Site Settings',
+}
+
+export async function AdminShell({
   active,
   title,
   subtitle,
@@ -26,35 +62,80 @@ export function AdminShell({
   children: React.ReactNode
   wide?: boolean
 }) {
+  const session = await getSession()
+  const email = session?.email ?? ''
+  const initials = email.slice(0, 2).toUpperCase() || 'JV'
+
   return (
     <div className="admin-shell">
       <aside className="admin-side">
-        <div className="brand">JV Ventures CMS</div>
-        <nav>
-          {NAV.map((n) => (
-            <Link key={n.key} href={n.href} className={active === n.key ? 'active' : ''}>
-              {n.label}
-            </Link>
+        <div className="rail-brand">
+          <span className="mark">
+            <span>JV</span>
+          </span>
+          <span className="name">
+            JV Ventures
+            <small>Content Studio</small>
+          </span>
+        </div>
+
+        <nav className="rail-nav">
+          {NAV.map((group) => (
+            <div className="rail-group" key={group.label}>
+              <div className="rail-group-label">{group.label}</div>
+              {group.items.map((n) => {
+                const Icon = n.icon
+                return (
+                  <Link key={n.key} href={n.href} className={`rail-link${active === n.key ? ' active' : ''}`}>
+                    <Icon strokeWidth={1.9} />
+                    {n.label}
+                  </Link>
+                )
+              })}
+            </div>
           ))}
         </nav>
-        <div className="side-foot">
-          <Link href="/" target="_blank" style={{ color: '#cdd7ea' }}>
-            View site ↗
-          </Link>
-          <form action={logout} style={{ marginTop: '.5rem' }}>
-            <button type="submit">Sign out</button>
-          </form>
+
+        <div className="rail-foot">
+          <div className="rail-user">
+            <span className="avatar">{initials}</span>
+            <span className="who">
+              <b>{email}</b>
+              <span>{session?.role ?? 'editor'}</span>
+            </span>
+          </div>
+          <div className="rail-foot-links">
+            <a href="/" target="_blank" rel="noopener noreferrer">
+              <ExternalLink strokeWidth={2} /> View site
+            </a>
+            <form action={logout} style={{ flex: 1, display: 'flex' }}>
+              <button type="submit" style={{ flex: 1 }}>
+                <LogOut strokeWidth={2} /> Sign out
+              </button>
+            </form>
+          </div>
         </div>
       </aside>
-      <main className={`admin-main${wide ? ' wide' : ''}`}>
-        <div className="admin-head">
-          <div>
+
+      <main className="admin-main">
+        <header className="admin-topbar">
+          <div className="topbar-head">
+            <div className="crumbs">
+              <RailToggle />
+              <Link href="/admin">Studio</Link>
+              {active !== 'dashboard' && (
+                <>
+                  <ChevronRight />
+                  <span style={{ color: 'var(--ink-2)' }}>{LABELS[active] ?? title}</span>
+                </>
+              )}
+            </div>
             <h1>{title}</h1>
             {subtitle && <div className="sub">{subtitle}</div>}
           </div>
-          {actions}
-        </div>
-        {children}
+          {actions && <div className="topbar-actions">{actions}</div>}
+        </header>
+        <div className={`admin-content${wide ? ' flush' : ''}`}>{children}</div>
       </main>
     </div>
   )

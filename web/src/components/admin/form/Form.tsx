@@ -1,7 +1,9 @@
 'use client'
 
+import { CloudUpload, Eye, EyeOff, Plus, RefreshCw, SquareArrowOutUpRight, Trash2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { FormProvider, useFieldArray, useForm, useFormContext } from 'react-hook-form'
+import { toast } from 'sonner'
 
 import { ImageField } from './ImageField'
 import { PreviewFrame, type PreviewHandle } from './PreviewFrame'
@@ -9,6 +11,8 @@ import { LinesField, StringListField } from './TextListFields'
 import { join, type FieldDef } from './types'
 
 type SaveResult = { ok: boolean; error?: string }
+const isTech = (f: FieldDef) =>
+  /href|slug|url|link|mailto/i.test(f.name) || /\b(link|url)\b/i.test((f as { label?: string }).label ?? '')
 
 export function EntityForm({
   defs,
@@ -24,11 +28,11 @@ export function EntityForm({
   preview?: { url: string; section: string }
 }) {
   const methods = useForm({ defaultValues })
-  const [state, setState] = useState<{ saving?: boolean; ok?: boolean; error?: string }>({})
+  const [saving, setSaving] = useState(false)
   const [showPreview, setShowPreview] = useState(true)
   const frameRef = useRef<PreviewHandle>(null)
+  const dirty = methods.formState.isDirty
 
-  // push live form values to the preview iframe as the user types (debounced)
   useEffect(() => {
     if (!preview) return
     let t: ReturnType<typeof setTimeout>
@@ -45,58 +49,67 @@ export function EntityForm({
   }, [preview, showPreview])
 
   const onSubmit = methods.handleSubmit(async (data) => {
-    setState({ saving: true })
+    setSaving(true)
     try {
       const res = await action(data)
-      setState(res.ok ? { ok: true } : { error: res.error || 'Could not save.' })
+      if (res.ok) {
+        methods.reset(data)
+        toast.success('Published', { description: 'Your changes are live within ~30 seconds.' })
+      } else {
+        toast.error('Could not publish', { description: res.error || 'Please try again.' })
+      }
     } catch (e) {
-      setState({ error: e instanceof Error ? e.message : 'Could not save.' })
+      toast.error('Could not publish', { description: e instanceof Error ? e.message : 'Please try again.' })
+    } finally {
+      setSaving(false)
     }
   })
 
   const split = preview && showPreview
 
+  const formInner = (
+    <form onSubmit={onSubmit}>
+      <Fields fields={defs} prefix="" />
+      <div className="savebar">
+        <button className="btn btn-primary" type="submit" disabled={saving}>
+          <CloudUpload /> {saving ? 'Publishing…' : saveLabel}
+        </button>
+        {preview && (
+          <button type="button" className="btn btn-ghost" onClick={() => setShowPreview((v) => !v)}>
+            {showPreview ? <EyeOff /> : <Eye />} {showPreview ? 'Hide preview' : 'Show preview'}
+          </button>
+        )}
+        <span className="spacer" />
+        <span className="hint-inline">{dirty ? 'Unsaved changes' : 'All changes published'}</span>
+      </div>
+    </form>
+  )
+
   return (
     <FormProvider {...methods}>
-      <div className={split ? 'editor-split' : ''}>
-        <div className="editor-form">
-          <form onSubmit={onSubmit}>
-            <Fields fields={defs} prefix="" />
-            <div className="savebar">
-              <button className="btn btn-primary" type="submit" disabled={state.saving}>
-                {state.saving ? 'Saving…' : saveLabel}
-              </button>
-              {preview && (
-                <button type="button" className="btn" onClick={() => setShowPreview((v) => !v)}>
-                  {showPreview ? 'Hide preview' : 'Show preview'}
-                </button>
-              )}
-              {state.ok && <span className="saved-msg">Saved ✓ — live within 30s</span>}
-              {state.error && <span className="err-msg">{state.error}</span>}
-            </div>
-          </form>
-        </div>
-        {split && (
+      {split ? (
+        <div className="editor-split">
+          <div className="editor-form">{formInner}</div>
           <div className="editor-preview-col">
             <div className="editor-preview-bar">
-              <span>Live preview — updates as you type (not saved until you publish)</span>
-              <span className="preview-toggle">
-                <button
-                  type="button"
-                  className="btn"
-                  style={{ padding: '.3rem .6rem', fontSize: '.75rem' }}
-                  onClick={() => frameRef.current?.reload()}
-                  title="Rebuild the preview — use after adding/removing/reordering items"
-                >
-                  ↻ Refresh
+              <span className="lp-live">
+                <span className="blip" /> Live preview
+              </span>
+              <span className="lp-actions">
+                <button type="button" onClick={() => frameRef.current?.reload()} title="Rebuild — use after adding or removing items">
+                  <RefreshCw /> Refresh
                 </button>
-                <a href={preview!.url} target="_blank" rel="noopener noreferrer">Open ↗</a>
+                <a href={preview!.url} target="_blank" rel="noopener noreferrer">
+                  <SquareArrowOutUpRight /> Open
+                </a>
               </span>
             </div>
             <PreviewFrame ref={frameRef} url={preview!.url} />
           </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        formInner
+      )}
     </FormProvider>
   )
 }
@@ -117,9 +130,21 @@ function FieldView({ field, prefix }: { field: FieldDef; prefix: string }) {
 
   switch (field.type) {
     case 'group':
-      return (
-        <div className="panel">
-          {field.label && <div className="panel-t">{field.label}</div>}
+      // top-level groups are full sections; nested groups are lighter
+      return prefix === '' ? (
+        <section className="panel">
+          {field.label && (
+            <div className="panel-head">
+              <h2>{field.label}</h2>
+            </div>
+          )}
+          <div className="panel-body">
+            <Fields fields={field.fields} prefix={path} />
+          </div>
+        </section>
+      ) : (
+        <div className="subgroup">
+          {field.label && <div className="subgroup-label">{field.label}</div>}
           <Fields fields={field.fields} prefix={path} />
         </div>
       )
@@ -133,17 +158,19 @@ function FieldView({ field, prefix }: { field: FieldDef; prefix: string }) {
       return <StringListField name={path} label={field.label} hint={field.hint} />
     case 'textarea':
       return (
-        <div className="field">
+        <div className={`field${isTech(field) ? ' tech' : ''}`}>
           <label>{field.label}</label>
-          {field.hint && <div className="hint">{field.hint}</div>}
+          {field.hint && <div className="hint" dangerouslySetInnerHTML={{ __html: hintHtml(field.hint) }} />}
           <textarea {...register(path)} />
         </div>
       )
     case 'checkbox':
       return (
-        <div className="field check">
-          <input type="checkbox" id={path} {...register(path)} />
-          <label htmlFor={path} style={{ marginBottom: 0 }}>{field.label}</label>
+        <div className="field">
+          <label className="check" htmlFor={path}>
+            <input type="checkbox" id={path} {...register(path)} />
+            <span>{field.label}</span>
+          </label>
         </div>
       )
     case 'number':
@@ -156,37 +183,54 @@ function FieldView({ field, prefix }: { field: FieldDef; prefix: string }) {
       )
     default:
       return (
-        <div className="field">
+        <div className={`field${isTech(field) ? ' tech' : ''}`}>
           <label>{field.label}</label>
-          {field.hint && <div className="hint">{field.hint}</div>}
+          {field.hint && <div className="hint" dangerouslySetInnerHTML={{ __html: hintHtml(field.hint) }} />}
           <input type="text" {...register(path)} />
         </div>
       )
   }
 }
 
+// turn `<code>x</code>`-style hints (and bare inline code) into styled code chips safely
+function hintHtml(s: string) {
+  const esc = s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  return esc.replace(/&lt;code&gt;(.*?)&lt;\/code&gt;/g, '<code>$1</code>')
+}
+
 function ArrayField({ field, prefix }: { field: Extract<FieldDef, { type: 'array' }>; prefix: string }) {
   const { control, watch } = useFormContext()
   const path = join(prefix, field.name)
   const { fields, append, remove } = useFieldArray({ control, name: path })
+  const singular = field.label.replace(/s$/, '')
 
   return (
     <div className="arr">
-      <div className="arr-t">{field.label}</div>
+      <div className="arr-head">
+        <span className="arr-t">
+          {field.label}
+          <span className="count">{fields.length}</span>
+        </span>
+      </div>
       {fields.map((item, i) => {
         const head = field.itemTitleKey ? String(watch(`${path}.${i}.${field.itemTitleKey}`) || '') : ''
         return (
           <div className="arr-item" key={item.id}>
-            <button type="button" className="arr-rm" onClick={() => remove(i)}>
-              Remove
-            </button>
-            {head && <div className="arr-t" style={{ marginBottom: '.6rem' }}>{head}</div>}
-            <Fields fields={field.fields} prefix={`${path}.${i}`} />
+            <div className="arr-item-head">
+              <span className="idx">{i + 1}</span>
+              <span className="arr-item-t">{head || `${singular} ${i + 1}`}</span>
+              <button type="button" className="arr-rm" onClick={() => remove(i)} aria-label="Remove">
+                <Trash2 />
+              </button>
+            </div>
+            <div className="arr-item-body">
+              <Fields fields={field.fields} prefix={`${path}.${i}`} />
+            </div>
           </div>
         )
       })}
       <button type="button" className="btn btn-add" onClick={() => append((field.newItem?.() ?? {}) as never)}>
-        + Add {field.label.replace(/s$/, '')}
+        <Plus /> Add {singular.toLowerCase()}
       </button>
     </div>
   )
