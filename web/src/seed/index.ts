@@ -54,16 +54,26 @@ async function run() {
     teamPage: inv.teamPage,
     contactPage: inv.contactPage,
   })) {
-    await prisma.singleton.upsert({ where: { key }, create: { key, data }, update: { data } })
+    // CREATE-ONLY: never overwrite content already published through the CMS.
+    // Re-running the seed only fills in what's missing. To force-reset a record,
+    // delete it first (or run with SEED_FORCE=1).
+    if (process.env.SEED_FORCE === '1') {
+      await prisma.singleton.upsert({ where: { key }, create: { key, data }, update: { data } })
+    } else {
+      const exists = await prisma.singleton.findUnique({ where: { key }, select: { key: true } })
+      if (!exists) await prisma.singleton.create({ data: { key, data } })
+    }
   }
 
-  // ---- platforms ----
+  // ---- platforms (create-only, same policy) ----
   for (const p of inv.platforms) {
-    await prisma.platform.upsert({
-      where: { slug: p.slug },
-      create: { slug: p.slug, order: p.order, name: p.name, sector: p.sector, data: p },
-      update: { order: p.order, name: p.name, sector: p.sector, data: p },
-    })
+    const data = { slug: p.slug, order: p.order, name: p.name, sector: p.sector, data: p }
+    if (process.env.SEED_FORCE === '1') {
+      await prisma.platform.upsert({ where: { slug: p.slug }, create: data, update: { order: p.order, name: p.name, sector: p.sector, data: p } })
+    } else {
+      const exists = await prisma.platform.findUnique({ where: { slug: p.slug }, select: { slug: true } })
+      if (!exists) await prisma.platform.create({ data })
+    }
   }
 
   // ---- media library (assets already live in /public/assets) ----

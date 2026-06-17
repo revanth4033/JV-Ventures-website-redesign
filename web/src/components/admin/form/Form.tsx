@@ -236,6 +236,8 @@ function ArrayField({ field, prefix }: { field: Extract<FieldDef, { type: 'array
   useEffect(() => {
     if (fields.length > lenRef.current) {
       const last = fields[fields.length - 1]
+      // open the freshly-added item (one-time on length growth)
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (last) setOpenIds((s) => new Set(s).add(last.id))
     }
     lenRef.current = fields.length

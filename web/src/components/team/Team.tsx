@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useRef } from 'react'
 
 import { AnimatedTitle } from '@/components/AnimatedTitle'
@@ -20,12 +21,18 @@ const initials = (name: string): string => {
 /** portrait: real photo when available, elegant monogram fallback otherwise */
 function Portrait({ name, photo, className = '' }: { name: string; photo?: string; className?: string }) {
   return (
-    <div
-      className={`portrait${photo ? ' has-photo' : ''} ${className}`.trim()}
-      style={photo ? { backgroundImage: `url(${asset(photo)})` } : undefined}
-      aria-hidden="true"
-    >
-      {!photo && <span>{initials(name)}</span>}
+    <div className={`portrait${photo ? ' has-photo' : ''} ${className}`.trim()} aria-hidden="true">
+      {photo ? (
+        <Image
+          src={asset(photo)}
+          alt=""
+          fill
+          sizes="(max-width: 768px) 45vw, 360px"
+          style={{ objectFit: 'cover', objectPosition: 'center 22%' }}
+        />
+      ) : (
+        <span>{initials(name)}</span>
+      )}
     </div>
   )
 }

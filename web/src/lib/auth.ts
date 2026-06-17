@@ -1,9 +1,12 @@
 import { SignJWT, jwtVerify } from 'jose'
 
 export const SESSION_COOKIE = 'jv_session'
-const secret = new TextEncoder().encode(
-  process.env.AUTH_SECRET || process.env.PAYLOAD_SECRET || 'dev-only-insecure-secret',
-)
+const rawSecret = process.env.AUTH_SECRET || process.env.PAYLOAD_SECRET
+if (!rawSecret && process.env.NODE_ENV === 'production') {
+  // never sign sessions with a public constant in production
+  throw new Error('AUTH_SECRET (or PAYLOAD_SECRET) must be set in production.')
+}
+const secret = new TextEncoder().encode(rawSecret || 'dev-only-insecure-secret')
 
 export type Session = { id: number; email: string; name: string; role: string }
 

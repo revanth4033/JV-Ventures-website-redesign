@@ -21,10 +21,15 @@ async function requireUser() {
 
 export type MediaItem = { id: number; url: string; alt: string; filename: string; mime: string }
 
+const MAX_BYTES = 50 * 1024 * 1024 // 50 MB (accommodates hero videos)
+const ALLOWED = /^(image\/(jpeg|png|webp|gif|svg\+xml)|video\/mp4)$/
+
 export async function uploadMedia(formData: FormData): Promise<MediaItem> {
   await requireUser()
   const file = formData.get('file') as File | null
   if (!file || file.size === 0) throw new Error('No file provided')
+  if (file.size > MAX_BYTES) throw new Error('File is too large (max 50 MB).')
+  if (file.type && !ALLOWED.test(file.type)) throw new Error('Unsupported file type. Use an image or MP4 video.')
 
   const safe = file.name.toLowerCase().replace(/[^a-z0-9.\-_]+/g, '-').replace(/-+/g, '-')
   const filename = `${Date.now()}-${safe}`
