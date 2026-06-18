@@ -7,6 +7,7 @@ import { toast } from 'sonner'
 
 import { ImageField } from './ImageField'
 import { PreviewFrame, type PreviewHandle } from './PreviewFrame'
+import { RichListField, RichTextField } from './RichTextField'
 import { LinesField, StringListField } from './TextListFields'
 import { join, type FieldDef } from './types'
 
@@ -154,6 +155,10 @@ function FieldView({ field, prefix, index }: { field: FieldDef; prefix: string; 
       return <ArrayField field={field} prefix={prefix} />
     case 'image':
       return <ImageField name={join(prefix, field.name)} label={field.label} hint={field.hint} />
+    case 'rich':
+      return <RichTextField name={join(prefix, field.name)} label={field.label} hint={field.hint} multiline={field.multiline} />
+    case 'richList':
+      return <RichListField name={join(prefix, field.name)} label={field.label} hint={field.hint} />
     case 'lines':
       return <LinesField name={join(prefix, field.name)} label={field.label} hint={field.hint} />
     case 'stringList':

@@ -72,7 +72,7 @@ export const siteSettingsSchema: FieldDef[] = [
   {
     type: 'section', name: 'closing', label: 'Closing block',
     fields: [
-      { type: 'stringList', name: 'closingQuote.lines', label: 'Closing quote', hint: 'One line per row. May include <em> for emphasis.' },
+      { type: 'richList', name: 'closingQuote.lines', label: 'Closing quote', hint: 'One line per row. Use the toolbar to emphasise words.' },
       { type: 'image', name: 'bridgeImage.src', label: 'Bridge image' },
       { type: 'text', name: 'bridgeImage.alt', label: 'Bridge image alt text' },
     ],
@@ -93,7 +93,7 @@ export const homeSchema: FieldDef[] = [
     fields: [
       { type: 'text', name: 'kicker', label: 'Kicker' },
       titleField(),
-      { type: 'textarea', name: 'copy', label: 'Body copy', hint: 'May use <em>/<strong>.' },
+      { type: 'rich', name: 'copy', label: 'Body copy' },
       cta(),
       { type: 'image', name: 'coreMark', label: 'Sphere core mark' },
       {
@@ -131,7 +131,7 @@ export const homeSchema: FieldDef[] = [
     fields: [
       { type: 'text', name: 'kicker', label: 'Kicker' },
       titleField(),
-      { type: 'textarea', name: 'copy', label: 'Body copy' },
+      { type: 'rich', name: 'copy', label: 'Body copy' },
       cta(),
       { type: 'image', name: 'backgroundImage', label: 'Background image' },
     ],
@@ -141,7 +141,7 @@ export const homeSchema: FieldDef[] = [
     fields: [
       { type: 'text', name: 'kicker', label: 'Kicker' },
       titleField(),
-      { type: 'textarea', name: 'copy', label: 'Body copy' },
+      { type: 'rich', name: 'copy', label: 'Body copy' },
       cta(),
       {
         type: 'array', name: 'strips', label: 'Platform strips', itemTitleKey: 'tab',
@@ -171,7 +171,7 @@ export const aboutSchema: FieldDef[] = [
     fields: [
       { type: 'text', name: 'actName', label: 'Act label' },
       titleField(),
-      { type: 'textarea', name: 'subtitle', label: 'Subtitle', hint: 'May use <em>.' },
+      { type: 'rich', name: 'subtitle', label: 'Subtitle' },
       { type: 'textarea', name: 'intro', label: 'Intro paragraph' },
       { type: 'stringList', name: 'sectorChips', label: 'Sector chips' },
       { type: 'image', name: 'heroImage', label: 'Hero band image' },
@@ -200,7 +200,7 @@ export const aboutSchema: FieldDef[] = [
         newItem: () => ({ num: '', line: '', note: '' }),
         fields: [
           { type: 'text', name: 'num', label: 'Number' },
-          { type: 'textarea', name: 'line', label: 'Headline', hint: 'Use <strong> + <em>.' },
+          { type: 'rich', name: 'line', label: 'Headline' },
           { type: 'textarea', name: 'note', label: 'Note' },
         ],
       },
@@ -220,7 +220,7 @@ export const aboutSchema: FieldDef[] = [
             { type: 'text', name: 'stage', label: 'Stage label' },
             { type: 'image', name: 'icon', label: 'Icon' },
           ] },
-          { type: 'textarea', name: 'title', label: 'Title', hint: 'Use <br> for the line break.' },
+          { type: 'rich', name: 'title', label: 'Title', multiline: true, hint: 'Press Enter for a line break.' },
           { type: 'textarea', name: 'desc', label: 'Description' },
         ],
       },

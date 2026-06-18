@@ -1386,6 +1386,7 @@ html, body { overflow-x: clip; }
   font-weight: 300; line-height: 1.6; max-width: 44ch; color: var(--text-dim);
 }
 .slide-copy strong { color: var(--text); font-weight: 600; }
+.slide-copy em { font-style: italic; }
 .slide-cta { margin-top: clamp(1.8rem, 4vh, 2.6rem); }
 
 /* per-slide entrance: lines + copy + cta activate when slide is current */

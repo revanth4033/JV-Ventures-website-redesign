@@ -1,5 +1,7 @@
 export type FieldDef =
   | { type: 'text' | 'textarea' | 'number' | 'checkbox' | 'image'; name: string; label: string; hint?: string }
+  | { type: 'rich'; name: string; label: string; hint?: string; multiline?: boolean } // WYSIWYG bold/italic — stores inline HTML
+  | { type: 'richList'; name: string; label: string; hint?: string } // list of WYSIWYG lines
   | { type: 'lines'; name: string; label: string; hint?: string }
   | { type: 'stringList'; name: string; label: string; hint?: string }
   | { type: 'group'; name: string; label?: string; fields: FieldDef[] }

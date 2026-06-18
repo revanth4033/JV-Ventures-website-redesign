@@ -283,6 +283,37 @@ a { color: var(--blue); text-decoration: none; }
 /* technical fields (URLs, slugs) read as technical */
 .field.tech input, .field.tech textarea { font-family: var(--font-mono); font-size: 0.82rem; }
 
+/* ---- rich-text (WYSIWYG) editor ---- */
+.rte {
+  border: 1px solid var(--line); border-radius: 9px; background: var(--paper); overflow: hidden;
+  transition: border-color 0.14s var(--ease), box-shadow 0.14s var(--ease);
+}
+.rte:hover { border-color: #cdd6e6; }
+.rte:focus-within { border-color: var(--blue); box-shadow: 0 0 0 3.5px rgba(39, 105, 221, 0.14); }
+.rte-bar { display: flex; gap: 0.2rem; padding: 0.3rem 0.4rem; border-bottom: 1px solid var(--line-2); background: var(--paper-2); }
+.rte-bar button {
+  display: inline-grid; place-items: center; width: 28px; height: 26px; flex: none;
+  border: 0; border-radius: 6px; background: transparent; color: var(--ink-2); cursor: pointer;
+  transition: background 0.14s var(--ease), color 0.14s var(--ease);
+}
+.rte-bar button:hover { background: rgba(15, 31, 61, 0.07); color: var(--ink); }
+.rte-bar svg { width: 15px; height: 15px; }
+.rte-body { padding: 0.6rem 0.75rem; font-size: 0.9rem; line-height: 1.55; color: var(--ink); min-height: 1.6em; outline: none; }
+.rte-multi .rte-body { min-height: 3.2em; }
+.rte-body strong { font-weight: 700; color: var(--ink); }
+.rte-body em { font-style: italic; }
+
+/* ---- editable line list (titles, closing quote) ---- */
+.lines-edit { display: flex; flex-direction: column; gap: 0.45rem; }
+.line-row { display: flex; align-items: flex-start; gap: 0.5rem; }
+.line-row .line-idx {
+  width: 22px; min-height: 38px; flex: none; display: grid; place-items: center;
+  font-family: var(--font-mono); font-size: 0.68rem; color: var(--ink-3);
+}
+.line-row .line-rte { flex: 1; min-width: 0; }
+.line-row .arr-rm { margin-top: 0.45rem; }
+.btn-add.btn-sm { width: auto; align-self: flex-start; padding: 0.42rem 0.7rem; font-size: 0.78rem; }
+
 .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 .check {
   display: flex; align-items: center; gap: 0.6rem; padding: 0.55rem 0.75rem;
