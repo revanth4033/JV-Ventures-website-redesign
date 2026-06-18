@@ -245,6 +245,28 @@ a { color: var(--blue); text-decoration: none; }
 .panel.open .panel-chev { transform: rotate(180deg); }
 .panel > .panel-body { padding: 1.3rem; }
 
+/* ---- section tabs: one page-section on screen at a time ---- */
+.sec-tabs {
+  display: flex; flex-wrap: wrap; gap: 0.35rem;
+  padding: 0.3rem; margin-bottom: 1.5rem;
+  background: var(--paper-2); border: 1px solid var(--line); border-radius: 12px;
+}
+.sec-tab {
+  font: inherit; font-size: 0.83rem; font-weight: 500; color: var(--ink-2);
+  padding: 0.5rem 0.9rem; border-radius: 8px; cursor: pointer;
+  background: transparent; border: 1px solid transparent; white-space: nowrap;
+  transition: background 0.14s var(--ease), color 0.14s var(--ease), box-shadow 0.14s var(--ease);
+}
+.sec-tab:hover { color: var(--ink); background: rgba(15, 31, 61, 0.04); }
+.sec-tab.on {
+  background: var(--paper); color: var(--blue-700); font-weight: 600;
+  box-shadow: 0 1px 2px rgba(15, 31, 61, 0.08), 0 0 0 1px var(--line);
+}
+.sec-body { animation: sec-fade 0.18s var(--ease); }
+.sec-body > .field:last-child, .sec-body > .arr:last-child, .sec-body > .subgroup:last-child { margin-bottom: 0; }
+@keyframes sec-fade { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .sec-body { animation: none; } }
+
 /* editor toolbar (above the sections) */
 .editor-toolbar { display: flex; align-items: center; margin-bottom: 1rem; }
 .editor-toolbar .spacer { flex: 1; }

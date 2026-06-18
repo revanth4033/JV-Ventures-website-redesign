@@ -34,7 +34,9 @@ export function EntityForm({
   const [saving, setSaving] = useState(false)
   const [showPreview, setShowPreview] = useState(false) // collapsed by default — opens on click
   const frameRef = useRef<PreviewHandle>(null)
-  const dirty = methods.formState.isDirty
+  // isDirty gives false positives with nested object/array Controllers (title/lines),
+  // so judge "unsaved" by actual changed fields instead.
+  const dirty = Object.keys(methods.formState.dirtyFields).length > 0
 
   useEffect(() => {
     if (!preview || !showPreview) return
@@ -80,7 +82,7 @@ export function EntityForm({
           </button>
         </div>
       )}
-      <Fields fields={defs} prefix="" />
+      <FormBody defs={defs} />
       <div className="savebar">
         <button className="btn btn-primary" type="submit" disabled={saving}>
           <CloudUpload /> {saving ? 'Publishing…' : saveLabel}
@@ -127,6 +129,51 @@ function Fields({ fields, prefix }: { fields: FieldDef[]; prefix: string }) {
         <FieldView key={keyOf(f, i)} field={f} prefix={prefix} index={i} />
       ))}
     </>
+  )
+}
+
+type Tab = { label: string; fields: FieldDef[]; prefix: string }
+
+/** If every top-level field is a section/group, present them as tabs instead of
+ *  a tall stack of accordions — one section on screen at a time. */
+function asTabs(defs: FieldDef[]): Tab[] | null {
+  const tabs = defs.map((d): Tab | null => {
+    if (d.type === 'section') return { label: d.label, fields: d.fields, prefix: '' }
+    if (d.type === 'group') return { label: d.label ?? '', fields: d.fields, prefix: d.name }
+    return null
+  })
+  return tabs.every((t): t is Tab => t !== null && t.label !== '') ? (tabs as Tab[]) : null
+}
+
+function FormBody({ defs }: { defs: FieldDef[] }) {
+  const tabs = asTabs(defs)
+  if (!tabs) return <Fields fields={defs} prefix="" />
+  return <TabbedSections tabs={tabs} />
+}
+
+function TabbedSections({ tabs }: { tabs: Tab[] }) {
+  const [active, setActive] = useState(0)
+  const cur = tabs[Math.min(active, tabs.length - 1)]
+  return (
+    <div className="sec-wrap">
+      <div className="sec-tabs" role="tablist" aria-label="Page sections">
+        {tabs.map((t, i) => (
+          <button
+            key={t.label}
+            type="button"
+            role="tab"
+            aria-selected={i === active}
+            className={`sec-tab${i === active ? ' on' : ''}`}
+            onClick={() => setActive(i)}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+      <div className="sec-body" key={cur.label}>
+        <Fields fields={cur.fields} prefix={cur.prefix} />
+      </div>
+    </div>
   )
 }
 
