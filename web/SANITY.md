@@ -1,5 +1,13 @@
 # Sanity.io CMS — second content source (for the client comparison)
 
+> **Live demo (provisioned 2026-06-19):**
+> - Custom CMS → **https://jvventures.vercel.app** (edit at `/admin`)
+> - Sanity → **https://jvventures-sanity.vercel.app** (edit at `/studio`)
+> - Sanity project id: `m0j7pflx`, dataset `production` (public), seeded with all content.
+> - The write token lives only in local `.env` (gitignored); the public dataset needs
+>   no token for reads, so the deployment ships none.
+
+
 This app now has **two** interchangeable content backends behind the same data
 seam (`src/content/db.ts`). The frontend is identical for both; only the editing
 experience differs.
