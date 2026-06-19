@@ -9,6 +9,7 @@
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
     "devsafe": "rm -rf .next && cross-env NODE_OPTIONS=--no-deprecation next dev",
     "seed": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" tsx src/seed/index.ts",
+    "sanity:seed": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" tsx scripts/migrate-to-sanity.mts",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
     "postinstall": "prisma generate",
@@ -17,7 +18,12 @@
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
+    "@portabletext/to-html": "^5.0.2",
+    "@portabletext/types": "^4.0.2",
     "@prisma/client": "^6.19.3",
+    "@sanity/client": "^7.23.0",
+    "@sanity/image-url": "^2.1.1",
+    "@sanity/vision": "^6.1.0",
     "@vercel/blob": "^2.4.0",
     "bcryptjs": "^3.0.3",
     "cross-env": "10.1.0",
@@ -27,11 +33,14 @@
     "lenis": "^1.1.14",
     "lucide-react": "^1.20.0",
     "next": "16.2.9",
+    "next-sanity": "^13.1.1",
     "react": "19.2.7",
     "react-dom": "19.2.7",
     "react-hook-form": "^7.79.0",
+    "sanity": "^6.1.0",
     "sharp": "0.34.2",
-    "sonner": "^2.0.7"
+    "sonner": "^2.0.7",
+    "styled-components": "^6.4.2"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.0",

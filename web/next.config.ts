@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
     ],
     remotePatterns: [
       { protocol: 'https', hostname: '*.public.blob.vercel-storage.com' }, // Vercel Blob media
+      { protocol: 'https', hostname: 'cdn.sanity.io' }, // Sanity image CDN
     ],
   },
   // Redirect the old prototype URLs to the new routes (preserve inbound links).
