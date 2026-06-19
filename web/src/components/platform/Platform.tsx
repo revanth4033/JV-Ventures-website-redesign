@@ -41,14 +41,16 @@ function animateNumber(el: HTMLElement, duration = 1.3) {
 function VentureTheater({ platform, ventures }: { platform: PlatformT; ventures: FlatVenture[] }) {
   const ref = useRef<HTMLElement>(null)
   const { lenis } = useSmoothScroll()
-  const N = ventures.length
-  // the rail navigates by category; a category may hold several ventures
-  // (e.g. Services = Inventre + Abeona), so it stays active across them
-  const cats: { label: string; first: number }[] = []
+  // one beat per category; a category may hold several ventures (e.g. Services
+  // = Inventre + Abeona) shown as chips you switch between within that beat
+  const cats: { label: string; idxs: number[] }[] = []
   ventures.forEach((v, i) => {
-    if (!cats.some((c) => c.label === v.category)) cats.push({ label: v.category, first: i })
+    const c = cats.find((x) => x.label === v.category)
+    if (c) c.idxs.push(i)
+    else cats.push({ label: v.category, idxs: [i] })
   })
   const C = cats.length
+  const catOf = (i: number) => cats.findIndex((c) => c.idxs.includes(i))
 
   useGSAP(
     () => {
@@ -59,7 +61,9 @@ function VentureTheater({ platform, ventures }: { platform: PlatformT; ventures:
       const ghost = sec.querySelector<HTMLElement>('.thx-ghost')
       const counter = sec.querySelector<HTMLElement>('#th-cur')!
       const counted = new Set<Element>()
-      let cur = -1
+      const selected = cats.map((c) => c.idxs[0]) // remembered venture per category
+      let curCat = -1
+      let curVen = -1
 
       const countMetrics = (panel: HTMLElement) => {
         if (counted.has(panel)) return
@@ -67,43 +71,64 @@ function VentureTheater({ platform, ventures }: { platform: PlatformT; ventures:
         panel.querySelectorAll<HTMLElement>('.ven-metric-num').forEach((el) => animateNumber(el, 1))
       }
 
-      const setBeat = (i: number) => {
-        if (i === cur) return
-        cur = i
-        const catIdx = cats.findIndex((c) => c.label === ventures[i].category)
-        photos.forEach((p, j) => p.classList.toggle('active', j === i))
-        pages.forEach((p, j) => p.classList.toggle('active', j === i))
-        // rail tracks the category, so Services stays lit for both its ventures
+      // activate a specific venture (used by both scroll + chip clicks)
+      const showVenture = (gi: number) => {
+        if (gi === curVen) return
+        curVen = gi
+        const catIdx = catOf(gi)
+        photos.forEach((p, j) => p.classList.toggle('active', j === gi))
+        pages.forEach((p, j) => p.classList.toggle('active', j === gi))
         items.forEach((it, j) => it.classList.toggle('active', j === catIdx))
         counter.textContent = pad(catIdx + 1)
         if (ghost) {
           ghost.textContent = pad(catIdx + 1)
           gsap.fromTo(ghost, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' })
         }
-        countMetrics(pages[i])
+        countMetrics(pages[gi])
+      }
+
+      // scroll lands on a category; show its remembered (default first) venture
+      const setBeat = (catIdx: number) => {
+        if (catIdx === curCat) return
+        curCat = catIdx
+        showVenture(selected[catIdx])
       }
 
       const st = ScrollTrigger.create({
         trigger: sec,
         start: 'top top',
-        end: '+=' + N * 110 + '%',
+        end: '+=' + C * 110 + '%',
         pin: true,
         onUpdate: (self) => {
-          setBeat(Math.min(N - 1, Math.floor(self.progress * N)))
+          setBeat(Math.min(C - 1, Math.floor(self.progress * C)))
           gsap.set('.thx-fill', { scaleX: self.progress })
         },
       })
       setBeat(0)
 
-      const onClick = (e: Event) => {
-        const i = +(e.currentTarget as HTMLElement).dataset.i!
-        const y = st.start + ((st.end - st.start) * (i + 0.5)) / N
+      // rail click -> jump to that category's beat
+      const onRail = (e: Event) => {
+        const j = +(e.currentTarget as HTMLElement).dataset.cat!
+        const y = st.start + ((st.end - st.start) * (j + 0.5)) / C
         lenis ? lenis.scrollTo(y, { duration: 0.9 }) : window.scrollTo({ top: y, behavior: 'smooth' })
       }
-      items.forEach((it) => it.addEventListener('click', onClick))
-      return () => items.forEach((it) => it.removeEventListener('click', onClick))
+      items.forEach((it) => it.addEventListener('click', onRail))
+
+      // chip click -> switch venture within the current category (no scroll)
+      const chips = gsap.utils.toArray<HTMLElement>('.thx-chip')
+      const onChip = (e: Event) => {
+        const gi = +(e.currentTarget as HTMLElement).dataset.go!
+        if (curCat >= 0) selected[curCat] = gi
+        showVenture(gi)
+      }
+      chips.forEach((c) => c.addEventListener('click', onChip))
+
+      return () => {
+        items.forEach((it) => it.removeEventListener('click', onRail))
+        chips.forEach((c) => c.removeEventListener('click', onChip))
+      }
     },
-    { scope: ref, dependencies: [N] },
+    { scope: ref, dependencies: [C] },
   )
 
   return (
@@ -133,10 +158,23 @@ function VentureTheater({ platform, ventures }: { platform: PlatformT; ventures:
         <div className="thx-stack">
           {ventures.map((v, i) => (
             <article className={`thx-page${i === 0 ? ' active' : ''}`} data-i={i} key={i}>
-              <span className="thx-eyebrow">{v.category}</span>
               <h3 className="thx-name">
                 <span className="thx-name-in">{v.name}</span>
               </h3>
+              {cats[catOf(i)].idxs.length > 1 ? (
+                <div className="thx-chips">
+                  {cats[catOf(i)].idxs.map((gi) => (
+                    <button
+                      type="button"
+                      className={`thx-chip${gi === i ? ' active' : ''}`}
+                      data-go={gi}
+                      key={gi}
+                    >
+                      {ventures[gi].name}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
               <div className="thx-brand">
                 {v.logo ? <img className="ven-logo" src={asset(v.logo)} alt={v.name} loading="lazy" decoding="async" /> : null}
               </div>
@@ -155,7 +193,7 @@ function VentureTheater({ platform, ventures }: { platform: PlatformT; ventures:
         <nav className="thx-tabs">
           <ul className="ven-rail-list">
             {cats.map((c, j) => (
-              <li className={`ven-rail-item${j === 0 ? ' active' : ''}`} data-i={c.first} key={c.label}>
+              <li className={`ven-rail-item${j === 0 ? ' active' : ''}`} data-cat={j} key={c.label}>
                 <i>{pad(j + 1)}</i>
                 <span>{c.label}</span>
               </li>

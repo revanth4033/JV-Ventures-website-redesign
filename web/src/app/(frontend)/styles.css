@@ -2276,15 +2276,24 @@ html, body { overflow-x: clip; }
 .thx-page { grid-area: 1 / 1; pointer-events: none; }
 .thx-page.active { pointer-events: auto; }
 
-/* category eyebrow above the venture name */
-.thx-eyebrow {
-  display: block; color: var(--red-soft);
-  font-size: 0.72rem; letter-spacing: 0.28em; text-transform: uppercase; font-weight: 600;
-  margin-bottom: clamp(0.9rem, 2vh, 1.4rem);
+/* venture chips — switch between ventures within a multi-venture category */
+.thx-chips { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 1.3rem 0 0; }
+.thx-chips + .thx-brand { margin-top: 1rem; }
+.thx-chip {
+  border: 1px solid var(--hair); border-radius: 99px; background: transparent;
+  padding: 0.5em 1.15em; color: var(--text-dim); cursor: pointer;
+  font: inherit; font-size: 0.72rem; letter-spacing: 0.06em;
+  transition: color var(--d-fast) var(--ease), border-color var(--d-fast) var(--ease),
+    background var(--d-fast) var(--ease);
+}
+.thx-chip:hover { color: var(--text); border-color: rgba(244, 246, 251, 0.4); }
+.thx-chip.active { color: var(--text); border-color: var(--red); background: rgba(218, 33, 40, 0.16); }
+/* reveal with the page entrance stagger */
+.thx-page .thx-chips {
   opacity: 0; transform: translateY(20px);
   transition: opacity 600ms var(--ease), transform 600ms var(--ease);
 }
-.thx-page.active .thx-eyebrow { opacity: 1; transform: translateY(0); transition-delay: 60ms; }
+.thx-page.active .thx-chips { opacity: 1; transform: translateY(0); transition-delay: 200ms; }
 
 /* giant name — wraps inside the column */
 .thx-name {
