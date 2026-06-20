@@ -43,10 +43,12 @@ export function RichEditor({
   value,
   onChange,
   multiline = false,
+  ariaLabel = 'Rich text',
 }: {
   value: string
   onChange: (v: string) => void
   multiline?: boolean
+  ariaLabel?: string
 }) {
   const ref = useRef<HTMLDivElement>(null)
   // initialise once so the caret never jumps on re-render
@@ -79,6 +81,10 @@ export function RichEditor({
         ref={ref}
         className="rte-body"
         contentEditable
+        role="textbox"
+        aria-multiline={multiline}
+        aria-label={ariaLabel}
+        tabIndex={0}
         suppressContentEditableWarning
         onInput={emit}
         onKeyDown={(e) => { if (!multiline && e.key === 'Enter') e.preventDefault() }}
@@ -113,7 +119,7 @@ export function RichTextField({
         <div className="field">
           <label>{label}</label>
           {hint && <div className="hint">{hint}</div>}
-          <RichEditor value={field.value || ''} onChange={field.onChange} multiline={multiline} />
+          <RichEditor value={field.value || ''} onChange={field.onChange} multiline={multiline} ariaLabel={label} />
         </div>
       )}
     />
@@ -139,7 +145,7 @@ export function RichListField({ name, label, hint }: { name: string; label: stri
                 <div className="line-row" key={i}>
                   <span className="line-idx">{i + 1}</span>
                   <div className="line-rte">
-                    <RichEditor value={ln} onChange={(v) => set(arr.map((x, j) => (j === i ? v : x)))} />
+                    <RichEditor value={ln} onChange={(v) => set(arr.map((x, j) => (j === i ? v : x)))} ariaLabel={`${label} line ${i + 1}`} />
                   </div>
                   <button type="button" className="arr-rm" onClick={() => set(arr.filter((_, j) => j !== i))} aria-label="Remove line">
                     <X />

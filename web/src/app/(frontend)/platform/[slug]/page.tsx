@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
+import { JsonLd } from '@/components/JsonLd'
 import { Platform } from '@/components/platform/Platform'
 import { loadPlatform, loadPlatforms, loadSiteSettings } from '@/content/db'
 
@@ -19,7 +20,15 @@ export async function generateMetadata({
   const { slug } = await params
   const p = await loadPlatform(slug)
   if (!p) return {}
-  return { title: p.name, description: p.tagline, alternates: { canonical: `/platform/${slug}` } }
+  const title = p.seo?.title?.trim() || p.name
+  const description = p.seo?.description?.trim() || p.tagline
+  return {
+    title,
+    description,
+    alternates: { canonical: `/platform/${slug}` },
+    openGraph: { title, description, url: `/platform/${slug}` },
+    twitter: { title, description },
+  }
 }
 
 export default async function PlatformPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -31,5 +40,19 @@ export default async function PlatformPage({ params }: { params: Promise<{ slug:
   ])
   if (!platform) notFound()
   const others = all.filter((p) => p.slug !== slug)
-  return <Platform platform={platform} others={others} settings={settings} />
+  const site = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
+  const ld = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: platform.name,
+    ...(platform.tagline ? { description: platform.tagline } : {}),
+    url: `${site}/platform/${slug}`,
+    parentOrganization: { '@type': 'Organization', name: 'JV Ventures', url: site },
+  }
+  return (
+    <>
+      <JsonLd data={ld} />
+      <Platform platform={platform} others={others} settings={settings} />
+    </>
+  )
 }

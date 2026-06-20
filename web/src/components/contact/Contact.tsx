@@ -11,7 +11,7 @@ import { EASE, gsap, ScrollTrigger, useGSAP } from '@/lib/gsap'
 export function Contact({ contact, settings }: { contact: ContactPage; settings: SiteSettings }) {
   const scope = useRef<HTMLDivElement>(null)
   const { reduced } = useSmoothScroll()
-  const { hero, email, enquiryTypes, offices, presence, formIntro, mapTitle, mapCopy } = contact
+  const { hero, email, enquiryTypes, offices, presence, formIntro, mapTitle, mapCopy, form } = contact
 
   const [enquiry, setEnquiry] = useState(enquiryTypes[0])
   const [sent, setSent] = useState(false)
@@ -99,50 +99,50 @@ export function Contact({ contact, settings }: { contact: ContactPage; settings:
                     →
                   </span>
                   <h2>
-                    Thank you{firstName ? `, ${firstName}` : ''}.
+                    {form?.successTitle || 'Thank you'}{firstName ? `, ${firstName}` : ''}.
                   </h2>
                   <p>
-                    Your message is on its way. Someone from the team will be in touch shortly — usually
-                    within two business days.
+                    {form?.successBody ||
+                      'Your message is on its way. Someone from the team will be in touch shortly — usually within two business days.'}
                   </p>
                   <button type="button" className="success-reset" onClick={() => setSent(false)}>
-                    Send another message
+                    {form?.resetLabel || 'Send another message'}
                   </button>
                 </div>
               ) : (
                 <form className="contact-form" onSubmit={onSubmit} noValidate={false}>
                   <div className="field-row">
                     <label className="field">
-                      <span className="field-label">First name</span>
+                      <span className="field-label">{form?.firstName || 'First name'}</span>
                       <input type="text" name="firstName" autoComplete="given-name" required />
                       <span className="field-line" aria-hidden="true" />
                     </label>
                     <label className="field">
-                      <span className="field-label">Last name</span>
+                      <span className="field-label">{form?.lastName || 'Last name'}</span>
                       <input type="text" name="lastName" autoComplete="family-name" required />
                       <span className="field-line" aria-hidden="true" />
                     </label>
                   </div>
                   <div className="field-row">
                     <label className="field">
-                      <span className="field-label">Email</span>
+                      <span className="field-label">{form?.email || 'Email'}</span>
                       <input type="email" name="email" autoComplete="email" required />
                       <span className="field-line" aria-hidden="true" />
                     </label>
                     <label className="field">
-                      <span className="field-label">Phone</span>
+                      <span className="field-label">{form?.phone || 'Phone'}</span>
                       <input type="tel" name="phone" autoComplete="tel" />
                       <span className="field-line" aria-hidden="true" />
                     </label>
                   </div>
                   <label className="field">
-                    <span className="field-label">Company</span>
+                    <span className="field-label">{form?.company || 'Company'}</span>
                     <input type="text" name="company" autoComplete="organization" />
                     <span className="field-line" aria-hidden="true" />
                   </label>
 
                   <div className="enquiry">
-                    <span className="field-label">Enquiry type</span>
+                    <span className="field-label">{form?.enquiryLabel || 'Enquiry type'}</span>
                     <div className="enquiry-chips">
                       {enquiryTypes.map((t) => (
                         <button
@@ -159,13 +159,13 @@ export function Contact({ contact, settings }: { contact: ContactPage; settings:
                   </div>
 
                   <label className="field">
-                    <span className="field-label">Your message</span>
+                    <span className="field-label">{form?.message || 'Your message'}</span>
                     <textarea name="message" rows={4} required />
                     <span className="field-line" aria-hidden="true" />
                   </label>
 
                   <button type="submit" className="contact-submit">
-                    Send message
+                    {form?.submit || 'Send message'}
                     <span className="arrow" aria-hidden="true">
                       →
                     </span>

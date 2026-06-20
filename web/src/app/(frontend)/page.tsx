@@ -6,10 +6,14 @@ import { loadHomePage, loadSiteSettings } from '@/content/db'
 
 export async function generateMetadata(): Promise<Metadata> {
   const home = await loadHomePage()
-  const title = home.seo?.title?.trim()
+  const title = home.seo?.title?.trim() || 'JV Ventures — Reimagining Investing'
+  const description = home.seo?.description?.trim()
   return {
-    title: title ? { absolute: title } : { absolute: 'JV Ventures — Reimagining Investing' },
+    title: { absolute: title },
+    ...(description ? { description } : {}),
     alternates: { canonical: '/' },
+    openGraph: { title, ...(description ? { description } : {}), url: '/' },
+    twitter: { title, ...(description ? { description } : {}) },
   }
 }
 

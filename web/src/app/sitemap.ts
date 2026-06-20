@@ -4,6 +4,9 @@ import { loadPlatforms } from '@/content/db'
 
 const base = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
 
+// Regenerate so newly created/deleted platforms appear (also revalidated on save).
+export const revalidate = 300
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const platforms = await loadPlatforms()
   return [

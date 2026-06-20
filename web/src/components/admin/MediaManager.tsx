@@ -1,16 +1,31 @@
 'use client'
 
-import { Copy, Trash2, CloudUpload } from 'lucide-react'
-import { useRef, useState, useTransition } from 'react'
+import { Copy, Search, Trash2, CloudUpload } from 'lucide-react'
+import { useEffect, useRef, useState, useTransition } from 'react'
 import { toast } from 'sonner'
 
-import { deleteMedia, uploadMedia, type MediaItem } from '@/app/(admin)/admin/media-actions'
+import { deleteMedia, listMedia, updateMedia, uploadMedia, type MediaItem } from '@/app/(admin)/admin/media-actions'
 
 export function MediaManager({ initial }: { initial: MediaItem[] }) {
   const [items, setItems] = useState(initial)
   const [busy, startBusy] = useTransition()
   const [drag, setDrag] = useState(false)
+  const [q, setQ] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
+
+  // debounced search
+  useEffect(() => {
+    const t = setTimeout(() => {
+      listMedia({ q }).then(setItems).catch(() => {})
+    }, 250)
+    return () => clearTimeout(t)
+  }, [q])
+
+  const saveAlt = (m: MediaItem, alt: string) => {
+    if (alt === m.alt) return
+    setItems((prev) => prev.map((x) => (x.id === m.id ? { ...x, alt } : x)))
+    updateMedia(m.id, { alt }).catch(() => toast.error('Could not save alt text'))
+  }
 
   const upload = (files: FileList | null) => {
     if (!files?.length) return
@@ -64,36 +79,52 @@ export function MediaManager({ initial }: { initial: MediaItem[] }) {
         <input
           ref={fileRef}
           type="file"
-          accept="image/*,video/mp4"
+          accept="image/jpeg,image/png,image/webp,image/gif,video/mp4"
           multiple
           hidden
           onChange={(e) => upload(e.target.files)}
         />
       </div>
 
-      <div className="media-grid">
-        {items.map((m) => (
-          <div className="media-cell" key={m.id}>
-            {m.mime.startsWith('video') ? (
-              <video className="mc-img" src={m.url} muted />
-            ) : (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img className="mc-img" src={m.url} alt={m.alt} />
-            )}
-            <div className="mc-ovl">
-              <button className="mc-btn" onClick={() => copy(m.url)} title="Copy link">
-                <Copy />
-              </button>
-              <button className="mc-btn danger" onClick={() => onDelete(m)} title="Delete">
-                <Trash2 />
-              </button>
-            </div>
-            <div className="mc-meta">
-              <div className="mc-name">{m.filename}</div>
-            </div>
-          </div>
-        ))}
+      <div className="media-search">
+        <Search />
+        <input type="text" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by filename or alt text…" />
       </div>
+
+      {items.length === 0 ? (
+        <p className="hint" style={{ padding: '1.5rem 0' }}>{q ? 'No media matches your search.' : 'No media yet — upload your first file above.'}</p>
+      ) : (
+        <div className="media-grid">
+          {items.map((m) => (
+            <div className="media-cell" key={m.id}>
+              {m.mime.startsWith('video') ? (
+                <video className="mc-img" src={m.url} muted />
+              ) : (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img className="mc-img" src={m.url} alt={m.alt} />
+              )}
+              <div className="mc-ovl">
+                <button className="mc-btn" onClick={() => copy(m.url)} title="Copy link">
+                  <Copy />
+                </button>
+                <button className="mc-btn danger" onClick={() => onDelete(m)} title="Delete">
+                  <Trash2 />
+                </button>
+              </div>
+              <div className="mc-meta">
+                <div className="mc-name" title={m.filename}>{m.filename}</div>
+                <input
+                  className="mc-alt"
+                  type="text"
+                  defaultValue={m.alt}
+                  placeholder="Alt text (for accessibility)…"
+                  onBlur={(e) => saveAlt(m, e.target.value)}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

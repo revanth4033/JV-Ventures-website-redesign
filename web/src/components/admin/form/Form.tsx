@@ -38,6 +38,17 @@ export function EntityForm({
   // so judge "unsaved" by actual changed fields instead.
   const dirty = Object.keys(methods.formState.dirtyFields).length > 0
 
+  // Warn before the tab is closed/reloaded with unpublished edits.
+  useEffect(() => {
+    if (!dirty) return
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault()
+      e.returnValue = ''
+    }
+    window.addEventListener('beforeunload', onBeforeUnload)
+    return () => window.removeEventListener('beforeunload', onBeforeUnload)
+  }, [dirty])
+
   useEffect(() => {
     if (!preview || !showPreview) return
     let t: ReturnType<typeof setTimeout>
@@ -333,15 +344,22 @@ function ArrayField({ field, prefix }: { field: Extract<FieldDef, { type: 'array
         const isOpen = openIds.has(item.id)
         return (
           <div className={`arr-item${isOpen ? ' open' : ''}`} key={item.id}>
-            <div className="arr-item-head" onClick={() => toggle(item.id)} role="button" aria-expanded={isOpen}>
-              <span className="idx">{i + 1}</span>
-              <span className="arr-item-t">{head || `${singular} ${i + 1}`}</span>
-              <ChevronDown className="arr-chev" />
+            <div className="arr-item-head">
+              <button
+                type="button"
+                className="arr-item-toggle"
+                onClick={() => toggle(item.id)}
+                aria-expanded={isOpen}
+              >
+                <span className="idx">{i + 1}</span>
+                <span className="arr-item-t">{head || `${singular} ${i + 1}`}</span>
+                <ChevronDown className="arr-chev" />
+              </button>
               <button
                 type="button"
                 className="arr-rm"
-                onClick={(e) => { e.stopPropagation(); remove(i) }}
-                aria-label="Remove"
+                onClick={() => remove(i)}
+                aria-label={`Remove ${head || `${singular} ${i + 1}`}`}
               >
                 <Trash2 />
               </button>

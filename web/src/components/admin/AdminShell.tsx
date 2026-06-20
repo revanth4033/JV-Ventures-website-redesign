@@ -11,6 +11,7 @@ const LABELS: Record<string, string> = {
   team: 'Team Page',
   contact: 'Contact Page',
   media: 'Media',
+  history: 'History',
   'site-settings': 'Site Settings',
 }
 

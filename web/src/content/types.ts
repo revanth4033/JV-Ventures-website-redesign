@@ -69,7 +69,7 @@ export interface DeckSlide {
   strips?: Strip[]
 }
 export interface HomePage {
-  seo: { title: string }
+  seo: { title: string; description?: string }
   deck: { railChapters: string[]; deckActName: string; slides: DeckSlide[] }
 }
 
@@ -81,7 +81,7 @@ export interface ModelRow { num: string; icon: string; image: string; title: str
 export interface EcoTile { image: string; logo: string; logoAlt: string; text: string; moreLabel: string; href: Href }
 export interface GridsLayer { num: string; icon: string; title: string; subtitle: string }
 export interface AboutPage {
-  seo: { title: string }
+  seo: { title: string; description?: string }
   hero: {
     actName: string; title: AnimatedTitle; subtitle: string; intro: string
     sectorChips: string[]; heroImage: string; ledger: LedgerItem[]
@@ -107,13 +107,14 @@ export interface Platform {
   wordmark: string; hero: string; video: string
   tagline: string; intro: string
   totals: Total[]; categories: Category[]
+  seo?: { title?: string; description?: string }
 }
 
 // ---- Team ----
 export interface TeamMember { name: string; role: string; bio?: string; photo?: string; highlights?: string[] }
 export interface TeamGroup { venture: string; members: TeamMember[] }
 export interface TeamPage {
-  seo: { title: string }
+  seo: { title: string; description?: string }
   hero: { actName: string; kicker: string; title: AnimatedTitle; intro: string; stats: HomeStat[] }
   foundersTitle: string
   founders: TeamMember[]
@@ -125,7 +126,7 @@ export interface TeamPage {
 // ---- Contact ----
 export interface Office { city: string; region: string; address: string }
 export interface ContactPage {
-  seo: { title: string }
+  seo: { title: string; description?: string }
   hero: { actName: string; kicker: string; title: AnimatedTitle; intro: string }
   email: string
   enquiryTypes: string[]
@@ -134,6 +135,19 @@ export interface ContactPage {
   formIntro: string
   mapTitle?: string
   mapCopy?: string
+  form?: {
+    firstName?: string
+    lastName?: string
+    email?: string
+    phone?: string
+    company?: string
+    enquiryLabel?: string
+    message?: string
+    submit?: string
+    successTitle?: string
+    successBody?: string
+    resetLabel?: string
+  }
 }
 
 export interface Inventory {

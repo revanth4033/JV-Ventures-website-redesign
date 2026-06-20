@@ -25,7 +25,7 @@ export function LinesField({ name, label, hint }: { name: string; label: string;
                 <div className="line-row" key={i}>
                   <span className="line-idx">{i + 1}</span>
                   <div className="line-rte">
-                    <RichEditor value={ln} onChange={(v) => setLines(lines.map((x, j) => (j === i ? v : x)))} />
+                    <RichEditor value={ln} onChange={(v) => setLines(lines.map((x, j) => (j === i ? v : x)))} ariaLabel={`${label} line ${i + 1}`} />
                   </div>
                   <button type="button" className="arr-rm" onClick={() => setLines(lines.filter((_, j) => j !== i))} aria-label="Remove line">
                     <X />

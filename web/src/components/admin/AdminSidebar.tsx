@@ -6,6 +6,7 @@ import {
   Boxes,
   ExternalLink,
   FileText,
+  History,
   House,
   Image as ImageIcon,
   LayoutDashboard,
@@ -34,7 +35,10 @@ export const NAV = [
   },
   {
     label: 'Library',
-    items: [{ href: '/admin/media', key: 'media', label: 'Media', icon: ImageIcon }],
+    items: [
+      { href: '/admin/media', key: 'media', label: 'Media', icon: ImageIcon },
+      { href: '/admin/history', key: 'history', label: 'History', icon: History },
+    ],
   },
   {
     label: 'Configuration',

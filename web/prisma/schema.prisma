@@ -41,7 +41,10 @@ model Media {
   width     Int?
   height    Int?
   mime      String   @default("")
+  hash      String? // sha256 of the bytes, for duplicate detection
   createdAt DateTime @default(now())
+
+  @@index([hash])
 }
 
 /// CMS users.
@@ -59,4 +62,28 @@ model LoginAttempt {
   key      String   @id
   fails    Int      @default(0)
   windowAt DateTime @default(now())
+}
+
+/// Append-only audit trail: who changed what, when.
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  userEmail String   @default("")
+  entity    String // singleton key, "platform:<slug>", or "media:<id>"
+  label     String   @default("") // human-friendly target name
+  action    String // create | update | delete | restore
+  at        DateTime @default(now())
+
+  @@index([at])
+}
+
+/// Point-in-time content snapshot for version history + one-click rollback.
+model Revision {
+  id        Int      @id @default(autoincrement())
+  entity    String // singleton key or "platform:<slug>"
+  label     String   @default("")
+  data      Json
+  userEmail String   @default("")
+  at        DateTime @default(now())
+
+  @@index([entity, at])
 }

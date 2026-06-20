@@ -345,6 +345,35 @@ a { color: var(--blue); text-decoration: none; }
 
 .modal-empty { padding: 2.4rem 1rem; text-align: center; color: var(--ink-3); font-size: 0.9rem; }
 
+/* ---- media search + alt editing ---- */
+.media-search { display: flex; align-items: center; gap: 0.55rem; margin: 0.2rem 0 1.1rem; max-width: 420px; padding: 0.5rem 0.75rem; border: 1px solid var(--line); border-radius: 9px; background: var(--paper); }
+.media-search:focus-within { border-color: var(--blue); box-shadow: 0 0 0 3.5px rgba(39, 105, 221, 0.14); }
+.media-search svg { width: 16px; height: 16px; color: var(--ink-3); flex: none; }
+.media-search input { flex: 1; border: 0; outline: none; font: inherit; font-size: 0.88rem; background: transparent; color: var(--ink); }
+.mc-alt { width: 100%; margin-top: 0.3rem; padding: 0.28rem 0.4rem; font: inherit; font-size: 0.72rem; color: var(--ink-2); border: 1px solid var(--line-2); border-radius: 6px; background: var(--paper-2); }
+.mc-alt:focus { outline: none; border-color: var(--blue); background: #fff; }
+
+/* ---- badges ---- */
+.badge { display: inline-block; padding: 0.12rem 0.5rem; border-radius: 999px; font-size: 0.7rem; font-weight: 600; text-transform: capitalize; }
+.badge-info { background: var(--blue-50); color: var(--blue-700); }
+.badge-ok { background: #e7f6ee; color: #137a44; }
+.badge-warn { background: #fff3e0; color: #9a5b00; }
+.badge-danger { background: var(--danger-50); color: var(--danger); }
+
+/* ---- history / audit ---- */
+.history { display: flex; flex-direction: column; gap: 1.5rem; max-width: 900px; }
+.hist-panel { background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--sh-xs); padding: 1.3rem 1.4rem; }
+.hist-h { font-family: var(--font-display); font-weight: 600; font-size: 1rem; color: var(--ink); margin: 0 0 0.4rem; }
+.hist-panel select { max-width: 360px; margin-top: 0.7rem; }
+.rev-list { margin-top: 0.9rem; }
+.rev-list ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.4rem; }
+.rev-list li { display: flex; align-items: center; gap: 0.85rem; padding: 0.55rem 0.7rem; border: 1px solid var(--line-2); border-radius: 8px; background: var(--paper-2); }
+.rev-when { font-size: 0.82rem; color: var(--ink); font-variant-numeric: tabular-nums; }
+.rev-who { font-size: 0.78rem; color: var(--ink-3); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.audit-table { width: 100%; border-collapse: collapse; margin-top: 0.7rem; font-size: 0.84rem; }
+.audit-table th { text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); font-weight: 600; padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--line); }
+.audit-table td { padding: 0.5rem 0.6rem; border-bottom: 1px solid var(--line-2); color: var(--ink-2); vertical-align: middle; }
+
 /* ---- rich-text (WYSIWYG) editor ---- */
 .rte {
   border: 1px solid var(--line); border-radius: 9px; background: var(--paper); overflow: hidden;
@@ -407,11 +436,15 @@ a { color: var(--blue); text-decoration: none; }
   background: var(--paper-2); margin-bottom: 0.6rem; overflow: hidden;
 }
 .arr-item-head {
-  display: flex; align-items: center; gap: 0.55rem; cursor: pointer;
-  padding: 0.6rem 0.65rem 0.6rem 0.85rem; border-bottom: 1px solid transparent; background: #fff;
+  display: flex; align-items: center; border-bottom: 1px solid transparent; background: #fff;
+}
+.arr-item-toggle {
+  flex: 1; min-width: 0; display: flex; align-items: center; gap: 0.55rem; cursor: pointer;
+  padding: 0.6rem 0.65rem 0.6rem 0.85rem; border: 0; background: transparent; font: inherit; text-align: left;
   transition: background 0.14s var(--ease);
 }
-.arr-item-head:hover { background: #f6f9fd; }
+.arr-item-toggle:hover { background: #f6f9fd; }
+.arr-item-head .arr-rm { margin-right: 0.45rem; }
 .arr-item.open .arr-item-head { border-bottom-color: var(--line-2); }
 .arr-item-head .idx {
   width: 22px; height: 22px; border-radius: 6px; flex: none; display: grid; place-items: center;

@@ -7,11 +7,16 @@ export const revalidate = 30
 
 export async function generateMetadata(): Promise<Metadata> {
   const team = await loadTeamPage()
+  const title = team.seo?.title?.trim() || 'Team'
+  const description =
+    team.seo?.description?.trim() ||
+    'The operators, founders, and investors behind JV Ventures — leadership across education, lifesciences, healthcare, and managed living.'
   return {
-    title: team.seo?.title?.trim() || 'Team',
-    description:
-      'The operators, founders, and investors behind JV Ventures — leadership across education, lifesciences, healthcare, and managed living.',
+    title,
+    description,
     alternates: { canonical: '/team' },
+    openGraph: { title, description, url: '/team' },
+    twitter: { title, description },
   }
 }
 

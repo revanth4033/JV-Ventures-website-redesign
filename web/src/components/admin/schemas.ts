@@ -21,6 +21,7 @@ const seoGroup = (): FieldDef => ({
   label: 'SEO',
   fields: [
     { type: 'text', name: 'title', label: 'Browser tab / SEO title', hint: 'Shown in the browser tab and in search & social results.' },
+    { type: 'textarea', name: 'description', label: 'Search / social description', hint: 'The summary shown under the title in Google and on shared links (~150–160 characters).' },
   ],
 })
 
@@ -371,6 +372,7 @@ export const platformSchema: FieldDef[] = [
       },
     ],
   },
+  seoGroup(),
 ]
 
 /* ---------------- Team ---------------- */
@@ -470,6 +472,28 @@ export const contactSchema: FieldDef[] = [
     fields: [
       { type: 'text', name: 'mapTitle', label: 'Heading', hint: 'Defaults to “Find us”.' },
       { type: 'textarea', name: 'mapCopy', label: 'Copy' },
+    ],
+  },
+  {
+    type: 'section', name: 'form', label: 'Contact form',
+    fields: [
+      { type: 'row', fields: [
+        { type: 'text', name: 'form.firstName', label: 'First-name label', hint: 'Defaults to “First name”.' },
+        { type: 'text', name: 'form.lastName', label: 'Last-name label' },
+      ] },
+      { type: 'row', fields: [
+        { type: 'text', name: 'form.email', label: 'Email label' },
+        { type: 'text', name: 'form.phone', label: 'Phone label' },
+      ] },
+      { type: 'row', fields: [
+        { type: 'text', name: 'form.company', label: 'Company label' },
+        { type: 'text', name: 'form.enquiryLabel', label: 'Enquiry-type label' },
+      ] },
+      { type: 'text', name: 'form.message', label: 'Message label' },
+      { type: 'text', name: 'form.submit', label: 'Submit button' },
+      { type: 'text', name: 'form.successTitle', label: 'Success heading', hint: 'Followed by “, {first name}.”' },
+      { type: 'textarea', name: 'form.successBody', label: 'Success message' },
+      { type: 'text', name: 'form.resetLabel', label: '“Send another” button' },
     ],
   },
   seoGroup(),

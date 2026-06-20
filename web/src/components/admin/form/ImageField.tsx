@@ -19,8 +19,12 @@ export function ImageField({ name, label, hint }: { name: string; label: string;
           {hint && <div className="hint">{hint}</div>}
           <div className="img-field">
             {field.value ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img className="img-thumb" src={field.value} alt="" />
+              /\.mp4($|\?)/i.test(field.value) ? (
+                <video className="img-thumb" src={field.value} muted playsInline />
+              ) : (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img className="img-thumb" src={field.value} alt="" />
+              )
             ) : (
               <span className="img-thumb empty">
                 <ImagePlus strokeWidth={1.7} />

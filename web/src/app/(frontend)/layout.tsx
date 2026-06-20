@@ -4,9 +4,10 @@ import React from 'react'
 import './styles.css'
 
 import { loadSiteSettings } from '@/content/db'
-import { SmoothScroll } from '@/components/SmoothScroll'
-import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
+import { Header } from '@/components/Header'
+import { JsonLd } from '@/components/JsonLd'
+import { SmoothScroll } from '@/components/SmoothScroll'
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -36,9 +37,22 @@ export const metadata: Metadata = {
 
 export default async function FrontendLayout({ children }: { children: React.ReactNode }) {
   const settings = await loadSiteSettings()
+  const site = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
+  const logoSrc = settings.logo?.src
+  const orgLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'JV Ventures',
+    url: site,
+    ...(logoSrc ? { logo: logoSrc.startsWith('http') ? logoSrc : `${site}${logoSrc}` } : {}),
+    ...(settings.footer?.locations ? { areaServed: settings.footer.locations } : {}),
+  }
+  const siteLd = { '@context': 'https://schema.org', '@type': 'WebSite', name: 'JV Ventures', url: site }
   return (
     <html lang="en" className={montserrat.variable}>
       <body>
+        <JsonLd data={orgLd} />
+        <JsonLd data={siteLd} />
         <SmoothScroll>
           <Header settings={settings} />
           {children}
