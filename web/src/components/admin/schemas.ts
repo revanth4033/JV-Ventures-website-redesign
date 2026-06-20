@@ -15,6 +15,14 @@ const cta = (name = 'cta', label = 'Button'): FieldDef => ({
   ],
 })
 const titleField = (name = 'title'): FieldDef => ({ type: 'lines', name, label: 'Title' })
+const seoGroup = (): FieldDef => ({
+  type: 'group',
+  name: 'seo',
+  label: 'SEO',
+  fields: [
+    { type: 'text', name: 'title', label: 'Browser tab / SEO title', hint: 'Shown in the browser tab and in search & social results.' },
+  ],
+})
 
 /* ---------------- Site Settings ---------------- */
 export const siteSettingsSchema: FieldDef[] = [
@@ -30,13 +38,14 @@ export const siteSettingsSchema: FieldDef[] = [
     fields: [
       {
         type: 'array', name: 'nav', label: 'Menu items', itemTitleKey: 'label',
-        newItem: () => ({ label: '', href: '', cta: false, dropdown: [] }),
+        newItem: () => ({ label: '', href: '', cta: false, external: false, dropdown: [] }),
         fields: [
           { type: 'row', fields: [
             { type: 'text', name: 'label', label: 'Label' },
             { type: 'text', name: 'href', label: 'Link' },
           ] },
           { type: 'checkbox', name: 'cta', label: 'Show as an outlined button' },
+          { type: 'checkbox', name: 'external', label: 'Open in a new tab' },
           {
             type: 'array', name: 'dropdown', label: 'Dropdown items', flat: true,
             newItem: () => ({ name: '', sector: '', href: '' }),
@@ -145,9 +154,10 @@ export const homeSchema: FieldDef[] = [
       cta(),
       {
         type: 'array', name: 'strips', label: 'Platform strips', itemTitleKey: 'tab',
-        newItem: () => ({ tab: '', logo: '', image: '', statStrong: '', statSpan: '', desc: '', href: '' }),
+        newItem: () => ({ tab: '', logo: '', logoAlt: '', image: '', statStrong: '', statSpan: '', desc: '', href: '' }),
         fields: [
           { type: 'text', name: 'tab', label: 'Sector tab' },
+          { type: 'text', name: 'logoAlt', label: 'Logo alt text', hint: 'Describes the logo for screen readers.' },
           { type: 'row', fields: [
             { type: 'image', name: 'logo', label: 'Logo' },
             { type: 'image', name: 'image', label: 'Background image' },
@@ -162,6 +172,7 @@ export const homeSchema: FieldDef[] = [
       },
     ],
   },
+  seoGroup(),
 ]
 
 /* ---------------- About Page ---------------- */
@@ -294,6 +305,7 @@ export const aboutSchema: FieldDef[] = [
       },
     ],
   },
+  seoGroup(),
 ]
 
 /* ---------------- Platform ---------------- */
@@ -417,6 +429,7 @@ export const teamSchema: FieldDef[] = [
       },
     ],
   },
+  seoGroup(),
 ]
 
 /* ---------------- Contact ---------------- */
@@ -452,4 +465,12 @@ export const contactSchema: FieldDef[] = [
       },
     ],
   },
+  {
+    type: 'section', name: 'map', label: 'Map section',
+    fields: [
+      { type: 'text', name: 'mapTitle', label: 'Heading', hint: 'Defaults to “Find us”.' },
+      { type: 'textarea', name: 'mapCopy', label: 'Copy' },
+    ],
+  },
+  seoGroup(),
 ]

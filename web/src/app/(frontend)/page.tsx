@@ -4,9 +4,13 @@ import { ClosingBridge } from '@/components/ClosingBridge'
 import { Home } from '@/components/home/Home'
 import { loadHomePage, loadSiteSettings } from '@/content/db'
 
-export const metadata: Metadata = {
-  title: { absolute: 'JV Ventures — Reimagining Investing' },
-  alternates: { canonical: '/' },
+export async function generateMetadata(): Promise<Metadata> {
+  const home = await loadHomePage()
+  const title = home.seo?.title?.trim()
+  return {
+    title: title ? { absolute: title } : { absolute: 'JV Ventures — Reimagining Investing' },
+    alternates: { canonical: '/' },
+  }
 }
 
 // ISR: serve cached HTML, regenerate within 30s of a CMS edit

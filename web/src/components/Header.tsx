@@ -76,6 +76,7 @@ export function Header({ settings }: { settings: SiteSettings }) {
               href={route(item.href)}
               className={item.cta ? 'nav-cta' : undefined}
               onClick={() => setOpen(false)}
+              {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
             >
               {item.label}
             </Link>

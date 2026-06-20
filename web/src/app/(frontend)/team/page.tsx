@@ -5,11 +5,14 @@ import { loadSiteSettings, loadTeamPage } from '@/content/db'
 
 export const revalidate = 30
 
-export const metadata: Metadata = {
-  title: 'Team',
-  description:
-    'The operators, founders, and investors behind JV Ventures — leadership across education, lifesciences, healthcare, and managed living.',
-  alternates: { canonical: '/team' },
+export async function generateMetadata(): Promise<Metadata> {
+  const team = await loadTeamPage()
+  return {
+    title: team.seo?.title?.trim() || 'Team',
+    description:
+      'The operators, founders, and investors behind JV Ventures — leadership across education, lifesciences, healthcare, and managed living.',
+    alternates: { canonical: '/team' },
+  }
 }
 
 export default async function TeamPage() {

@@ -11,7 +11,7 @@ import { EASE, gsap, ScrollTrigger, useGSAP } from '@/lib/gsap'
 export function Contact({ contact, settings }: { contact: ContactPage; settings: SiteSettings }) {
   const scope = useRef<HTMLDivElement>(null)
   const { reduced } = useSmoothScroll()
-  const { hero, email, enquiryTypes, offices, presence, formIntro } = contact
+  const { hero, email, enquiryTypes, offices, presence, formIntro, mapTitle, mapCopy } = contact
 
   const [enquiry, setEnquiry] = useState(enquiryTypes[0])
   const [sent, setSent] = useState(false)
@@ -209,11 +209,13 @@ export function Contact({ contact, settings }: { contact: ContactPage; settings:
           <header className="grids-head">
             <h2 className="section-title">
               <span className="line">
-                <span className="line-inner">Find us</span>
+                <span className="line-inner">{mapTitle || 'Find us'}</span>
               </span>
             </h2>
             <div className="head-right">
-              <p className="section-copy reveal">Two homes in Hyderabad — at the heart of India&rsquo;s deep-tech and lifesciences corridor.</p>
+              <p className="section-copy reveal">
+                {mapCopy || 'Two homes in Hyderabad — at the heart of India’s deep-tech and lifesciences corridor.'}
+              </p>
             </div>
           </header>
           <div className="map-grid">

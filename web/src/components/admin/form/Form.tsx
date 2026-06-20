@@ -232,7 +232,13 @@ function FieldView({ field, prefix, index }: { field: FieldDef; prefix: string; 
         <div className="field">
           <label>{field.label}</label>
           {field.hint && <div className="hint">{field.hint}</div>}
-          <input type="number" {...register(join(prefix, field.name), { valueAsNumber: true })} />
+          <input
+            type="number"
+            {...register(join(prefix, field.name), {
+              // empty / non-numeric → 0 (avoids NaN serialising to null on save)
+              setValueAs: (v) => (v === '' || v === null || Number.isNaN(Number(v)) ? 0 : Number(v)),
+            })}
+          />
         </div>
       )
     default:

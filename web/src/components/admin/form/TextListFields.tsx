@@ -72,7 +72,8 @@ export function StringListField({ name, label, hint }: { name: string; label: st
             <textarea
               rows={Math.max(2, arr.length)}
               value={arr.join('\n')}
-              onChange={(e) => field.onChange(e.target.value.split('\n'))}
+              // empty textarea → [] (not ['']); blank lines kept so you can add rows
+              onChange={(e) => field.onChange(e.target.value === '' ? [] : e.target.value.split('\n'))}
             />
           </div>
         )

@@ -5,11 +5,14 @@ import { loadContactPage, loadSiteSettings } from '@/content/db'
 
 export const revalidate = 30
 
-export const metadata: Metadata = {
-  title: 'Contact',
-  description:
-    'Start a conversation with JV Ventures — partnerships, careers, press, and general enquiries. Offices in Hyderabad; presence across India, Dubai, and Singapore.',
-  alternates: { canonical: '/contact' },
+export async function generateMetadata(): Promise<Metadata> {
+  const contact = await loadContactPage()
+  return {
+    title: contact.seo?.title?.trim() || 'Contact',
+    description:
+      'Start a conversation with JV Ventures — partnerships, careers, press, and general enquiries. Offices in Hyderabad; presence across India, Dubai, and Singapore.',
+    alternates: { canonical: '/contact' },
+  }
 }
 
 export default async function ContactPage() {

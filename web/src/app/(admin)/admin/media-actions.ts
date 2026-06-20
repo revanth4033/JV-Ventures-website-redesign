@@ -81,6 +81,7 @@ export async function deleteMedia(id: number): Promise<void> {
 }
 
 export async function listMedia(): Promise<MediaItem[]> {
+  await requireUser()
   const rows = await prisma.media.findMany({ orderBy: { createdAt: 'desc' } })
   return rows.map((m) => ({ id: m.id, url: m.url, alt: m.alt, filename: m.filename, mime: m.mime }))
 }

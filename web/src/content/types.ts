@@ -132,6 +132,8 @@ export interface ContactPage {
   offices: Office[]
   presence: string
   formIntro: string
+  mapTitle?: string
+  mapCopy?: string
 }
 
 export interface Inventory {
