@@ -13,6 +13,7 @@ import {
   LogOut,
   Mail,
   Settings,
+  UserCog,
   Users,
 } from 'lucide-react'
 
@@ -42,7 +43,10 @@ export const NAV = [
   },
   {
     label: 'Configuration',
-    items: [{ href: '/admin/site-settings', key: 'site-settings', label: 'Site Settings', icon: Settings }],
+    items: [
+      { href: '/admin/site-settings', key: 'site-settings', label: 'Site Settings', icon: Settings },
+      { href: '/admin/account', key: 'account', label: 'Account', icon: UserCog },
+    ],
   },
 ]
 

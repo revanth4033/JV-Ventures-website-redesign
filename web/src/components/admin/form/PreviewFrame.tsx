@@ -2,7 +2,8 @@
 
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
 
-const BASE = 1366 // render the desktop layout, then scale to fit the pane
+export type PreviewDevice = 'desktop' | 'tablet' | 'mobile'
+const WIDTHS: Record<PreviewDevice, number> = { desktop: 1366, tablet: 834, mobile: 390 }
 
 export type PreviewHandle = {
   post: (section: string, data: unknown) => void
@@ -10,7 +11,8 @@ export type PreviewHandle = {
   reload: () => void
 }
 
-export const PreviewFrame = forwardRef<PreviewHandle, { url: string }>(function PreviewFrame({ url }, ref) {
+export const PreviewFrame = forwardRef<PreviewHandle, { url: string; device?: PreviewDevice }>(function PreviewFrame({ url, device = 'desktop' }, ref) {
+  const BASE = WIDTHS[device] // narrower devices upscale to fill the pane → bigger, readable text
   const wrapRef = useRef<HTMLDivElement>(null)
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const lastRef = useRef<{ section: string; data: unknown } | null>(null)
@@ -59,7 +61,7 @@ export const PreviewFrame = forwardRef<PreviewHandle, { url: string }>(function 
 
   const scale = dim.w / BASE
   return (
-    <div className="editor-preview-frame" ref={wrapRef}>
+    <div className={`editor-preview-frame is-${device}`} ref={wrapRef}>
       <iframe
         ref={iframeRef}
         src={url}

@@ -7,7 +7,7 @@ import { FormProvider, useFieldArray, useForm, useFormContext } from 'react-hook
 import { toast } from 'sonner'
 
 import { ImageField } from './ImageField'
-import { PreviewFrame, type PreviewHandle } from './PreviewFrame'
+import { PreviewFrame, type PreviewDevice, type PreviewHandle } from './PreviewFrame'
 import { RichListField, RichTextField } from './RichTextField'
 import { LinesField, StringListField } from './TextListFields'
 import { join, type FieldDef } from './types'
@@ -45,6 +45,7 @@ export function EntityForm({
   const methods = useForm({ defaultValues })
   const [saving, setSaving] = useState(false)
   const [showPreview, setShowPreview] = useState(false) // collapsed by default — opens on click
+  const [device, setDevice] = useState<PreviewDevice>('desktop')
   const [showSchedule, setShowSchedule] = useState(false)
   const [scheduleAt, setScheduleAt] = useState('')
   const [hasDraftLocal, setHasDraftLocal] = useState(hasDraft)
@@ -67,6 +68,17 @@ export function EntityForm({
   // isDirty gives false positives with nested object/array Controllers (title/lines),
   // so judge "unsaved" by actual changed fields instead.
   const dirty = Object.keys(methods.formState.dirtyFields).length > 0
+
+  // Keep the sticky section-tab bar parked right below the (sticky) topbar.
+  useEffect(() => {
+    const tb = document.querySelector<HTMLElement>('.admin-topbar')
+    if (!tb) return
+    const set = () => document.documentElement.style.setProperty('--cms-topbar-h', `${tb.offsetHeight}px`)
+    set()
+    const ro = new ResizeObserver(set)
+    ro.observe(tb)
+    return () => ro.disconnect()
+  }, [])
 
   // Warn before the tab is closed/reloaded with unpublished edits.
   useEffect(() => {
@@ -219,6 +231,13 @@ export function EntityForm({
               <span className="lp-live">
                 <span className="blip" /> Live preview
               </span>
+              <span className="lp-device" role="group" aria-label="Preview size">
+                {(['desktop', 'tablet', 'mobile'] as const).map((d) => (
+                  <button key={d} type="button" className={device === d ? 'on' : ''} onClick={() => setDevice(d)} title={`${d[0].toUpperCase()}${d.slice(1)} preview`}>
+                    {d === 'desktop' ? 'Desktop' : d === 'tablet' ? 'Tablet' : 'Mobile'}
+                  </button>
+                ))}
+              </span>
               <span className="lp-actions">
                 <button type="button" onClick={() => frameRef.current?.reload()} title="Rebuild — use after adding or removing items">
                   <RefreshCw /> Refresh
@@ -228,7 +247,7 @@ export function EntityForm({
                 </a>
               </span>
             </div>
-            <PreviewFrame ref={frameRef} url={preview!.url} />
+            <PreviewFrame ref={frameRef} url={preview!.url} device={device} />
           </div>
         </div>
       ) : (
@@ -270,13 +289,21 @@ function FormBody({ defs, onActiveChange }: { defs: FieldDef[]; onActiveChange?:
 function TabbedSections({ tabs, onActiveChange }: { tabs: Tab[]; onActiveChange?: (id: string) => void }) {
   const [active, setActive] = useState(0)
   const cur = tabs[Math.min(active, tabs.length - 1)]
-  // notify the editor (→ live preview) which section is being edited
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const firstRun = useRef(true)
+  // notify the editor (→ live preview) which section is being edited, and bring the
+  // section's top into view so you start at the top (the tab bar stays sticky).
   useEffect(() => {
     onActiveChange?.(cur.id)
+    if (firstRun.current) {
+      firstRun.current = false
+      return
+    }
+    wrapRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active])
   return (
-    <div className="sec-wrap">
+    <div className="sec-wrap" ref={wrapRef}>
       <div className="sec-tabs" role="tablist" aria-label="Page sections">
         {tabs.map((t, i) => (
           <button

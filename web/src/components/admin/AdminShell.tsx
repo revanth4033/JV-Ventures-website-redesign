@@ -13,6 +13,7 @@ const LABELS: Record<string, string> = {
   media: 'Media',
   history: 'History',
   'site-settings': 'Site Settings',
+  account: 'Account',
 }
 
 /**
