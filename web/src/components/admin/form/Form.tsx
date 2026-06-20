@@ -1,6 +1,6 @@
 'use client'
 
-import { CalendarClock, ChevronDown, CloudUpload, Eye, EyeOff, Plus, RefreshCw, SquareArrowOutUpRight, Trash2, X } from 'lucide-react'
+import { CalendarClock, ChevronDown, CloudUpload, Eye, EyeOff, Maximize2, Minimize2, Plus, RefreshCw, SquareArrowOutUpRight, Trash2, X } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { FormProvider, useFieldArray, useForm, useFormContext } from 'react-hook-form'
@@ -46,6 +46,7 @@ export function EntityForm({
   const [saving, setSaving] = useState(false)
   const [showPreview, setShowPreview] = useState(false) // collapsed by default — opens on click
   const [device, setDevice] = useState<PreviewDevice>('desktop')
+  const [fullscreen, setFullscreen] = useState(false)
   const [showSchedule, setShowSchedule] = useState(false)
   const [scheduleAt, setScheduleAt] = useState('')
   const [hasDraftLocal, setHasDraftLocal] = useState(hasDraft)
@@ -79,6 +80,14 @@ export function EntityForm({
     ro.observe(tb)
     return () => ro.disconnect()
   }, [])
+
+  // Esc exits the fullscreen preview.
+  useEffect(() => {
+    if (!fullscreen) return
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setFullscreen(false)
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [fullscreen])
 
   // Warn before the tab is closed/reloaded with unpublished edits.
   useEffect(() => {
@@ -226,7 +235,7 @@ export function EntityForm({
       {split ? (
         <div className="editor-split">
           <div className="editor-form">{formInner}</div>
-          <div className="editor-preview-col">
+          <div className={`editor-preview-col${fullscreen ? ' fullscreen' : ''}`}>
             <div className="editor-preview-bar">
               <span className="lp-live">
                 <span className="blip" /> Live preview
@@ -239,6 +248,9 @@ export function EntityForm({
                 ))}
               </span>
               <span className="lp-actions">
+                <button type="button" onClick={() => setFullscreen((f) => !f)} title={fullscreen ? 'Exit fullscreen (Esc)' : 'Expand to fullscreen'}>
+                  {fullscreen ? <Minimize2 /> : <Maximize2 />} {fullscreen ? 'Exit' : 'Expand'}
+                </button>
                 <button type="button" onClick={() => frameRef.current?.reload()} title="Rebuild — use after adding or removing items">
                   <RefreshCw /> Refresh
                 </button>

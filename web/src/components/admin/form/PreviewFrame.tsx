@@ -41,6 +41,24 @@ export const PreviewFrame = forwardRef<PreviewHandle, { url: string; device?: Pr
     },
   }), [url])
 
+  // changing device only resizes the iframe; the page's responsive JS (GSAP deck,
+  // header menu, matchMedia) only runs on load — so reload it to re-initialise at
+  // the new width. The ready handshake then re-applies the current unsaved values.
+  const firstDeviceRef = useRef(true)
+  useEffect(() => {
+    if (firstDeviceRef.current) {
+      firstDeviceRef.current = false
+      return
+    }
+    const win = iframeRef.current?.contentWindow
+    try {
+      win?.location.reload()
+    } catch {
+      if (iframeRef.current) iframeRef.current.src = url
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [device])
+
   // when the preview iframe says it's ready, push the latest values
   useEffect(() => {
     const onMsg = (e: MessageEvent) => {
@@ -59,15 +77,19 @@ export const PreviewFrame = forwardRef<PreviewHandle, { url: string; device?: Pr
     return () => ro.disconnect()
   }, [])
 
-  const scale = dim.w / BASE
+  // fit to the pane width, but cap upscaling so narrow devices don't blow up blurry
+  const MAX_SCALE: Record<PreviewDevice, number> = { desktop: 1, tablet: 1.4, mobile: 1.7 }
+  const scale = Math.min(dim.w / BASE, MAX_SCALE[device]) || 1
   return (
     <div className={`editor-preview-frame is-${device}`} ref={wrapRef}>
-      <iframe
-        ref={iframeRef}
-        src={url}
-        title="Live preview"
-        style={{ width: BASE, height: scale ? dim.h / scale : dim.h, transform: `scale(${scale})`, transformOrigin: '0 0' }}
-      />
+      <div className="epf-stage" style={{ width: BASE * scale, height: dim.h }}>
+        <iframe
+          ref={iframeRef}
+          src={url}
+          title="Live preview"
+          style={{ width: BASE, height: dim.h / scale, transform: `scale(${scale})`, transformOrigin: '0 0' }}
+        />
+      </div>
     </div>
   )
 })
