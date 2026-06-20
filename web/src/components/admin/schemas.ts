@@ -83,6 +83,7 @@ export const siteSettingsSchema: FieldDef[] = [
     type: 'section', name: 'closing', label: 'Closing block',
     fields: [
       { type: 'richList', name: 'closingQuote.lines', label: 'Closing quote', hint: 'One line per row. Use the toolbar to emphasise words.' },
+      { type: 'text', name: 'closingQuote.actName', label: 'Closing act label', hint: 'Scroll-indicator label on the closing block (defaults to “Invitation”).' },
       { type: 'image', name: 'bridgeImage.src', label: 'Bridge image' },
       { type: 'text', name: 'bridgeImage.alt', label: 'Bridge image alt text' },
     ],
@@ -405,6 +406,7 @@ export const teamSchema: FieldDef[] = [
     type: 'section', name: 'founders', label: 'Founders',
     fields: [
       { type: 'text', name: 'foundersTitle', label: 'Section heading' },
+      { type: 'text', name: 'foundersActName', label: 'Act label', hint: 'Defaults to “Founders”.' },
       {
         type: 'array', name: 'founders', label: 'Co-founders', itemTitleKey: 'name',
         newItem: () => ({ name: '', role: '', bio: '', photo: '', highlights: [] }),
@@ -416,6 +418,7 @@ export const teamSchema: FieldDef[] = [
     type: 'section', name: 'roster', label: 'Roster',
     fields: [
       { type: 'text', name: 'rosterTitle', label: 'Section heading' },
+      { type: 'text', name: 'rosterActName', label: 'Act label', hint: 'Defaults to “Leadership”.' },
       { type: 'textarea', name: 'rosterCopy', label: 'Copy' },
       {
         type: 'array', name: 'groups', label: 'Venture groups', itemTitleKey: 'venture',
@@ -452,6 +455,7 @@ export const contactSchema: FieldDef[] = [
       { type: 'stringList', name: 'enquiryTypes', label: 'Enquiry types', hint: 'One per line.' },
       { type: 'text', name: 'presence', label: 'Presence line' },
       { type: 'textarea', name: 'formIntro', label: 'Form intro' },
+      { type: 'text', name: 'bodyActName', label: 'Form act label', hint: 'Defaults to “Get in touch”.' },
     ],
   },
   {
@@ -470,6 +474,7 @@ export const contactSchema: FieldDef[] = [
   {
     type: 'section', name: 'map', label: 'Map section',
     fields: [
+      { type: 'text', name: 'mapActName', label: 'Act label', hint: 'Defaults to “Find us”.' },
       { type: 'text', name: 'mapTitle', label: 'Heading', hint: 'Defaults to “Find us”.' },
       { type: 'textarea', name: 'mapCopy', label: 'Copy' },
     ],

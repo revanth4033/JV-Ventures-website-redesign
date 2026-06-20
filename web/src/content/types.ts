@@ -42,7 +42,7 @@ export interface Stat {
 export interface SiteSettings {
   logo: { src: string; alt: string }
   nav: NavItem[]
-  closingQuote: { lines: string[] }
+  closingQuote: { lines: string[]; actName?: string }
   bridgeImage: { src: string; alt: string }
   footer: { locations: string; links: Link[] }
 }
@@ -117,8 +117,10 @@ export interface TeamPage {
   seo: { title: string; description?: string }
   hero: { actName: string; kicker: string; title: AnimatedTitle; intro: string; stats: HomeStat[] }
   foundersTitle: string
+  foundersActName?: string
   founders: TeamMember[]
   rosterTitle: string
+  rosterActName?: string
   rosterCopy: string
   groups: TeamGroup[]
 }
@@ -133,6 +135,8 @@ export interface ContactPage {
   offices: Office[]
   presence: string
   formIntro: string
+  bodyActName?: string
+  mapActName?: string
   mapTitle?: string
   mapCopy?: string
   form?: {

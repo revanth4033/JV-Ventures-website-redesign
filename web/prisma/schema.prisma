@@ -46,9 +46,12 @@ model Media {
   height    Int?
   mime      String   @default("")
   hash      String? // sha256 of the bytes, for duplicate detection
+  folder    String   @default("") // optional organisational folder
+  tags      String[] @default([]) // free-form tags for filtering
   createdAt DateTime @default(now())
 
   @@index([hash])
+  @@index([folder])
 }
 
 /// CMS users.

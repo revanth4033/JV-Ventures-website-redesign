@@ -61,7 +61,7 @@ export function ClosingBridge({
       className={`act act-close ${className}`.trim()}
       id={id}
       data-act={dataAct}
-      data-act-name={dataActName}
+      data-act-name={closingQuote.actName || dataActName}
     >
       <p className="close-statement">
         {closingQuote.lines.map((line, i) => (

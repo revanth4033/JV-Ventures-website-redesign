@@ -40,7 +40,7 @@ function Portrait({ name, photo, className = '' }: { name: string; photo?: strin
 export function Team({ team, settings }: { team: TeamPage; settings: SiteSettings }) {
   const scope = useRef<HTMLDivElement>(null)
   const { reduced } = useSmoothScroll()
-  const { hero, foundersTitle, founders, rosterTitle, rosterCopy, groups } = team
+  const { hero, foundersTitle, foundersActName, founders, rosterTitle, rosterActName, rosterCopy, groups } = team
 
   // flatten members with their venture for the gallery
   const roster = groups.flatMap((g) => g.members.map((m) => ({ ...m, venture: g.venture })))
@@ -159,7 +159,7 @@ export function Team({ team, settings }: { team: TeamPage; settings: SiteSetting
         </section>
 
         {/* ACT 2 · CO-FOUNDERS */}
-        <section className="act team-founders" data-act="02" data-act-name="Founders">
+        <section className="act team-founders" data-act="02" data-act-name={foundersActName || 'Founders'}>
           <header className="team-section-head">
             <h2 className="section-title">
               <span className="line">
@@ -198,7 +198,7 @@ export function Team({ team, settings }: { team: TeamPage; settings: SiteSetting
         </section>
 
         {/* ACT 3 · PORTFOLIO LEADERSHIP — every leader shown, editorial stagger */}
-        <section className="act team-roster" data-act="03" data-act-name="Leadership">
+        <section className="act team-roster" data-act="03" data-act-name={rosterActName || 'Leadership'}>
           <header className="grids-head">
             <h2 className="section-title">
               <span className="line">

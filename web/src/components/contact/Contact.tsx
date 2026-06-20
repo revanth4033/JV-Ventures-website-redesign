@@ -11,7 +11,7 @@ import { EASE, gsap, ScrollTrigger, useGSAP } from '@/lib/gsap'
 export function Contact({ contact, settings }: { contact: ContactPage; settings: SiteSettings }) {
   const scope = useRef<HTMLDivElement>(null)
   const { reduced } = useSmoothScroll()
-  const { hero, email, enquiryTypes, offices, presence, formIntro, mapTitle, mapCopy, form } = contact
+  const { hero, email, enquiryTypes, offices, presence, formIntro, mapTitle, mapCopy, form, bodyActName, mapActName } = contact
 
   const [enquiry, setEnquiry] = useState(enquiryTypes[0])
   const [sent, setSent] = useState(false)
@@ -88,7 +88,7 @@ export function Contact({ contact, settings }: { contact: ContactPage; settings:
         </section>
 
         {/* FORM + DETAILS */}
-        <section className="act contact-body" data-act="02" data-act-name="Get in touch">
+        <section className="act contact-body" data-act="02" data-act-name={bodyActName || 'Get in touch'}>
           <div className="contact-layout">
             {/* form */}
             <div className="contact-form-wrap">
@@ -205,7 +205,7 @@ export function Contact({ contact, settings }: { contact: ContactPage; settings:
         </section>
 
         {/* MAP */}
-        <section className="act contact-map" data-act="03" data-act-name="Find us">
+        <section className="act contact-map" data-act="03" data-act-name={mapActName || 'Find us'}>
           <header className="grids-head">
             <h2 className="section-title">
               <span className="line">
