@@ -383,6 +383,7 @@ const memberFields: FieldDef[] = [
     { type: 'text', name: 'role', label: 'Role' },
   ] },
   { type: 'image', name: 'photo', label: 'Photo' },
+  { type: 'text', name: 'linkedin', label: 'LinkedIn URL', hint: 'Full profile link. Shows a LinkedIn icon over the photo on hover.' },
   { type: 'textarea', name: 'bio', label: 'Bio' },
   { type: 'stringList', name: 'highlights', label: 'Highlights', hint: 'One per line (e.g. “20+ years”).' },
 ]
@@ -409,7 +410,7 @@ export const teamSchema: FieldDef[] = [
       { type: 'text', name: 'foundersActName', label: 'Act label', hint: 'Defaults to “Founders”.' },
       {
         type: 'array', name: 'founders', label: 'Co-founders', itemTitleKey: 'name',
-        newItem: () => ({ name: '', role: '', bio: '', photo: '', highlights: [] }),
+        newItem: () => ({ name: '', role: '', photo: '', linkedin: '', bio: '', highlights: [] }),
         fields: memberFields,
       },
     ],

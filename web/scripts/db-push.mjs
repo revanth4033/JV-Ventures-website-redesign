@@ -18,4 +18,10 @@ try {
 } catch (e) {
   console.warn('[db-normalize] skipped (continuing build):', e instanceof Error ? e.message : e)
 }
+// Idempotent backfill of founder/roster LinkedIn URLs from the seed. Fills empties only.
+try {
+  execSync('node scripts/seed-linkedin.mjs', { stdio: 'inherit' })
+} catch (e) {
+  console.warn('[seed-linkedin] skipped (continuing build):', e instanceof Error ? e.message : e)
+}
 process.exit(0)
