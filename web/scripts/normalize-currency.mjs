@@ -23,6 +23,12 @@ const fix = (v) => {
 const changed = (v) => JSON.stringify(fix(v)) !== JSON.stringify(v)
 
 const prisma = new PrismaClient()
+const sample = new Set()
+const collect = (v) => {
+  if (typeof v === 'string') { if (v.includes('$') || v.includes('500M') || v.includes('2.4M')) sample.add(v) }
+  else if (Array.isArray(v)) v.forEach(collect)
+  else if (v && typeof v === 'object') Object.values(v).forEach(collect)
+}
 try {
   let n = 0
   for (const row of await prisma.singleton.findMany()) {
@@ -32,14 +38,17 @@ try {
       n++
     }
   }
-  for (const row of await prisma.platform.findMany()) {
+  const platforms = await prisma.platform.findMany()
+  console.log(`[currency] DB has ${platforms.length} platform row(s).`)
+  for (const row of platforms) {
+    collect(row.data)
     const data = { data: fix(row.data), draft: row.draft == null ? row.draft : fix(row.draft) }
     if (changed(row.data) || (row.draft != null && changed(row.draft))) {
       await prisma.platform.update({ where: { id: row.id }, data })
       n++
     }
   }
-  console.log(`[currency] normalized ${n} row(s).`)
+  console.log(`[currency] normalized ${n} row(s). $-values seen:`, JSON.stringify([...sample]))
 } catch (e) {
   console.warn('[currency] skipped (continuing build):', e instanceof Error ? e.message : e)
 } finally {
