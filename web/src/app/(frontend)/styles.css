@@ -2439,28 +2439,37 @@ html, body { overflow-x: clip; }
 .portrait:not(.has-photo)::after {
   content: ""; position: absolute; left: 0; bottom: 0; width: 42px; height: 2px; background: var(--red);
 }
-/* LinkedIn overlay — reveals over the photo on hover, click opens the profile */
+/* LinkedIn — a compact pill that fades + slides up in a lower corner on hover.
+   The face stays visible, so the grayscale→colour reveal still reads. */
 .portrait-li {
-  position: absolute; inset: 0; z-index: 3;
-  display: grid; place-items: center; color: #fff;
-  background: rgba(4, 12, 32, 0.55);
-  opacity: 0; transition: opacity var(--d-base) var(--ease);
+  position: absolute; left: 0.7rem; bottom: 0.7rem; z-index: 3;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 38px; height: 38px; border-radius: 99px; color: #fff;
+  background: rgba(7, 20, 48, 0.78);
+  border: 1px solid rgba(244, 246, 251, 0.28);
+  box-shadow: 0 8px 20px rgba(4, 14, 36, 0.38);
+  opacity: 0; transform: translateY(10px);
+  transition: opacity var(--d-base) var(--ease), transform var(--d-base) var(--ease),
+              background var(--d-fast) var(--ease), border-color var(--d-fast) var(--ease);
 }
 .portrait:hover .portrait-li,
-.portrait-li:focus-visible { opacity: 1; }
-.portrait-li svg {
-  width: 30px; height: 30px;
-  transform: scale(0.8); transition: transform var(--d-base) var(--ease);
-}
-.portrait:hover .portrait-li svg { transform: scale(1); }
+.portrait-li:focus-visible { opacity: 1; transform: translateY(0); }
+.portrait-li:hover,
+.portrait-li:focus-visible { background: var(--red); border-color: var(--red); }
+.portrait-li svg { width: 18px; height: 18px; }
+/* a founder frame carries a red corner accent that flips by side — keep the pill
+   on the opposite corner so the two never collide */
+.founder[data-side='left'] .portrait-li { left: auto; right: 0.7rem; }
 /* touch devices have no hover — show a small persistent LinkedIn badge */
 @media (hover: none) {
   .portrait-li {
-    inset: auto 0.55rem 0.55rem auto; width: 34px; height: 34px;
-    border-radius: 50%; background: var(--red); opacity: 1;
-    box-shadow: 0 6px 16px rgba(4, 14, 36, 0.4);
+    inset: auto 0.55rem 0.55rem auto; left: auto; width: 34px; height: 34px;
+    border-radius: 50%; background: var(--red); border-color: transparent;
+    opacity: 1; transform: none; box-shadow: 0 6px 16px rgba(4, 14, 36, 0.4);
   }
-  .portrait-li svg { width: 18px; height: 18px; transform: none; }
+  .founder[data-side='left'] .portrait-li { right: 0.55rem; }
+  .founder[data-side='right'] .portrait-li { inset: auto auto 0.55rem 0.55rem; }
+  .portrait-li svg { width: 17px; height: 17px; }
 }
 
 /* media: framed portrait with a giant outlined index numeral */
