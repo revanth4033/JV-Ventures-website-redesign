@@ -28,6 +28,12 @@ async function guard() {
   return s
 }
 
+async function guardAdmin() {
+  const s = await guard()
+  if (s.role !== 'admin') throw new Error('Only admins can perform this action.')
+  return s
+}
+
 async function revalidateSite() {
   revalidatePath('/')
   revalidatePath('/about')
@@ -41,9 +47,16 @@ async function revalidateSite() {
 
 /** Audit trail + a version snapshot (for rollback). Keeps the latest 30 snapshots per entity. */
 async function record(entity: string, label: string, action: string, userEmail: string, snapshot?: unknown) {
-  await prisma.auditLog.create({ data: { userEmail, entity, label, action } }).catch(() => {})
+  // The audit trail is governance data — if a write fails we must not lose it
+  // silently, so log instead of swallowing. (We still don't fail the user's
+  // action over an audit hiccup.)
+  await prisma.auditLog
+    .create({ data: { userEmail, entity, label, action } })
+    .catch((e) => console.error('[audit] failed to record', { entity, action }, e))
   if (snapshot !== undefined) {
-    await prisma.revision.create({ data: { entity, label, userEmail, data: json(snapshot) } }).catch(() => {})
+    await prisma.revision
+      .create({ data: { entity, label, userEmail, data: json(snapshot) } })
+      .catch((e) => console.error('[revision] failed to snapshot', { entity }, e))
     const old = await prisma.revision
       .findMany({ where: { entity }, orderBy: { at: 'desc' }, skip: 30, select: { id: true } })
       .catch(() => [])
@@ -172,7 +185,8 @@ export async function createPlatform(input: { name?: string; sector?: string; sl
 }
 
 export async function deletePlatform(slug: string): Promise<Result> {
-  const s = await guard()
+  // Destructive + irreversible from the UI — restrict to admins, not every editor.
+  const s = await guardAdmin()
   const row = await prisma.platform.findUnique({ where: { slug }, select: { name: true } })
   if (!row) return { ok: false, error: 'That platform no longer exists.' }
   await prisma.platform.delete({ where: { slug } })
@@ -204,7 +218,9 @@ export async function restoreRevision(id: number): Promise<Result> {
   const s = await guard()
   const rev = await prisma.revision.findUnique({ where: { id } })
   if (!rev) return { ok: false, error: 'Revision not found.' }
-  const data = rev.data as Data
+  // Re-sanitize on the way back out: don't trust that a stored snapshot was
+  // clean (defends against any past/parallel write path that skipped sanitizing).
+  const data = sanitizeContent(rev.data as Data)
   if (rev.entity.startsWith('platform:')) {
     const slug = rev.entity.slice('platform:'.length)
     await prisma.platform.update({

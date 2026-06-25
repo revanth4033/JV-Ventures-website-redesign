@@ -19,6 +19,8 @@ model Singleton {
   draft     Json? // unpublished edits awaiting publish/schedule
   publishAt DateTime? // when a scheduled draft should go live (cron)
   updatedAt DateTime @updatedAt
+
+  @@index([publishAt]) // the scheduled-publish cron scans by this
 }
 
 /// One row per platform. Scalars for listing/sorting; `data` holds full content.
@@ -34,6 +36,7 @@ model Platform {
   updatedAt DateTime @updatedAt
 
   @@index([order])
+  @@index([publishAt]) // the scheduled-publish cron scans by this
 }
 
 /// Uploaded / referenced media. URL is what the site renders.
@@ -61,6 +64,7 @@ model User {
   passwordHash String
   name         String   @default("")
   role         String   @default("editor") // admin | editor
+  tokenVersion Int      @default(0) // bumped to invalidate all existing JWTs for this user
   createdAt    DateTime @default(now())
 }
 

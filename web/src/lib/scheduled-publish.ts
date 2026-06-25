@@ -4,8 +4,10 @@ import { Prisma } from '@prisma/client'
 import { revalidatePath } from 'next/cache'
 
 import { prisma } from './prisma'
+import { sanitizeContent } from './sanitize'
 
 type Data = Record<string, unknown>
+const logFail = (what: string) => (e: unknown) => console.error(`[scheduled-publish] ${what} failed`, e)
 
 /** Promote any drafts whose scheduled publishAt has arrived. Called by the cron route. */
 export async function runScheduledPublishes(): Promise<{ published: string[] }> {
@@ -17,12 +19,13 @@ export async function runScheduledPublishes(): Promise<{ published: string[] }> 
       await prisma.singleton.update({ where: { key: r.key }, data: { publishAt: null } })
       continue
     }
+    const clean = sanitizeContent(r.draft) as Prisma.InputJsonValue
     await prisma.singleton.update({
       where: { key: r.key },
-      data: { data: r.draft as Prisma.InputJsonValue, draft: Prisma.DbNull, publishAt: null },
+      data: { data: clean, draft: Prisma.DbNull, publishAt: null },
     })
-    await prisma.revision.create({ data: { entity: r.key, label: r.key, userEmail: 'scheduler', data: r.draft as Prisma.InputJsonValue } }).catch(() => {})
-    await prisma.auditLog.create({ data: { userEmail: 'scheduler', entity: r.key, label: r.key, action: 'publish' } }).catch(() => {})
+    await prisma.revision.create({ data: { entity: r.key, label: r.key, userEmail: 'scheduler', data: clean } }).catch(logFail('revision'))
+    await prisma.auditLog.create({ data: { userEmail: 'scheduler', entity: r.key, label: r.key, action: 'publish' } }).catch(logFail('audit'))
     published.push(r.key)
   }
 
@@ -31,20 +34,21 @@ export async function runScheduledPublishes(): Promise<{ published: string[] }> 
       await prisma.platform.update({ where: { id: r.id }, data: { publishAt: null } })
       continue
     }
-    const d = r.draft as Data
+    const d = sanitizeContent(r.draft as Data)
+    const cleanPlatform = d as Prisma.InputJsonValue
     await prisma.platform.update({
       where: { id: r.id },
       data: {
         name: String(d.name ?? r.name),
         sector: String(d.sector ?? r.sector),
         order: Number(d.order ?? r.order),
-        data: r.draft as Prisma.InputJsonValue,
+        data: cleanPlatform,
         draft: Prisma.DbNull,
         publishAt: null,
       },
     })
-    await prisma.revision.create({ data: { entity: `platform:${r.slug}`, label: r.name, userEmail: 'scheduler', data: r.draft as Prisma.InputJsonValue } }).catch(() => {})
-    await prisma.auditLog.create({ data: { userEmail: 'scheduler', entity: `platform:${r.slug}`, label: r.name, action: 'publish' } }).catch(() => {})
+    await prisma.revision.create({ data: { entity: `platform:${r.slug}`, label: r.name, userEmail: 'scheduler', data: cleanPlatform } }).catch(logFail('revision'))
+    await prisma.auditLog.create({ data: { userEmail: 'scheduler', entity: `platform:${r.slug}`, label: r.name, action: 'publish' } }).catch(logFail('audit'))
     revalidatePath(`/platform/${r.slug}`)
     published.push(`platform:${r.slug}`)
   }

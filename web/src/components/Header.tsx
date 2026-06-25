@@ -12,6 +12,9 @@ export function Header({ settings }: { settings: SiteSettings }) {
   const { logo, nav } = settings
   const headerRef = useRef<HTMLElement>(null)
   const [open, setOpen] = useState(false)
+  // which nav dropdown is currently revealed (hover or keyboard focus), so
+  // aria-expanded reflects reality instead of being hardcoded false.
+  const [openDrop, setOpenDrop] = useState<string | null>(null)
   const [scrolled, setScrolled] = useState(false)
   const [atTopEdge, setAtTopEdge] = useState(false)
   // auto-hide only where there's a real pointer to reveal it again; touch
@@ -69,12 +72,23 @@ export function Header({ settings }: { settings: SiteSettings }) {
           .map((item) => {
           if (item.dropdown) {
             return (
-              <div className="nav-has-drop" key={item.label}>
+              <div
+                className="nav-has-drop"
+                key={item.label}
+                onMouseEnter={() => setOpenDrop(item.label)}
+                onMouseLeave={() => setOpenDrop((cur) => (cur === item.label ? null : cur))}
+                onFocus={() => setOpenDrop(item.label)}
+                onBlur={(e) => {
+                  if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                    setOpenDrop((cur) => (cur === item.label ? null : cur))
+                  }
+                }}
+              >
                 <Link
                   href={route(item.href)}
                   className="nav-drop-trigger"
                   aria-haspopup="true"
-                  aria-expanded="false"
+                  aria-expanded={openDrop === item.label}
                   onClick={() => setOpen(false)}
                 >
                   {item.label}

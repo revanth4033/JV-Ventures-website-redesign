@@ -16,8 +16,14 @@ const prisma = new PrismaClient()
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 const inventory = JSON.parse(fs.readFileSync(path.resolve(dirname, '../content/inventory.json'), 'utf8'))
 
+import crypto from 'crypto'
+
 const ADMIN_EMAIL = process.env.SEED_ADMIN_EMAIL || 'admin@jv.ventures'
-const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD || 'changeme-jv-2026'
+// Never ship a known default password. If SEED_ADMIN_PASSWORD isn't provided we
+// mint a random one and print it once below — so a forgotten env var can't leave
+// a publicly-guessable admin account.
+const ADMIN_PASSWORD_FROM_ENV = process.env.SEED_ADMIN_PASSWORD
+const ADMIN_PASSWORD = ADMIN_PASSWORD_FROM_ENV || crypto.randomBytes(12).toString('base64url')
 
 const MIME: Record<string, string> = {
   '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png',
@@ -102,7 +108,13 @@ async function run() {
     update: {},
   })
 
-  console.log(`✓ Seed complete — ${inv.platforms.length} platforms, ${assetPaths.size} media, admin: ${ADMIN_EMAIL} / ${ADMIN_PASSWORD}`)
+  console.log(`✓ Seed complete — ${inv.platforms.length} platforms, ${assetPaths.size} media`)
+  console.log(`  admin email: ${ADMIN_EMAIL}`)
+  if (ADMIN_PASSWORD_FROM_ENV) {
+    console.log('  admin password: (from SEED_ADMIN_PASSWORD env)')
+  } else {
+    console.log(`  admin password (generated — save this now, it won't be shown again): ${ADMIN_PASSWORD}`)
+  }
   await prisma.$disconnect()
 }
 

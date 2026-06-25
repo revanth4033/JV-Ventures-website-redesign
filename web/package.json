@@ -14,6 +14,7 @@
     "db:studio": "prisma studio",
     "postinstall": "prisma generate",
     "lint": "cross-env NODE_OPTIONS=--no-deprecation eslint .",
+    "test": "vitest run",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start"
   },
   "dependencies": {
@@ -57,7 +58,8 @@
     "prettier": "^3.4.2",
     "prisma": "^6.19.3",
     "tsx": "4.22.4",
-    "typescript": "6.0.3"
+    "typescript": "6.0.3",
+    "vitest": "^3.2.4"
   },
   "engines": {
     "node": ">=20.9.0"

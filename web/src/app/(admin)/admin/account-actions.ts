@@ -25,7 +25,21 @@ export async function changePassword(currentPassword: string, newPassword: strin
   if (!user) return { ok: false, error: 'Account not found.' }
   if (!(await bcrypt.compare(currentPassword, user.passwordHash))) return { ok: false, error: 'Current password is incorrect.' }
   if (newPassword.length < 8) return { ok: false, error: 'New password must be at least 8 characters.' }
-  await prisma.user.update({ where: { id: user.id }, data: { passwordHash: await bcrypt.hash(newPassword, 12) } })
+  // Bump tokenVersion so every other outstanding session for this user is
+  // invalidated (getSession compares it against the JWT). Then re-issue the
+  // current session cookie with the new version so the active tab stays logged in.
+  const updated = await prisma.user.update({
+    where: { id: user.id },
+    data: { passwordHash: await bcrypt.hash(newPassword, 12), tokenVersion: { increment: 1 } },
+  })
+  const token = await signSession({ id: updated.id, email: updated.email, name: updated.name, role: updated.role, tv: updated.tokenVersion })
+  ;(await cookies()).set(SESSION_COOKIE, token, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    path: '/',
+    maxAge: 60 * 60 * 24 * 7,
+  })
   await audit(s.email, 'password-change', user.email)
   return { ok: true }
 }
@@ -39,7 +53,7 @@ export async function updateProfile(name: string, email: string): Promise<Result
   }
   const user = await prisma.user.update({ where: { id: s.id }, data: { name: name.trim(), email: e } })
   // re-issue the session cookie so the new email/name take effect immediately
-  const token = await signSession({ id: user.id, email: user.email, name: user.name, role: user.role })
+  const token = await signSession({ id: user.id, email: user.email, name: user.name, role: user.role, tv: user.tokenVersion })
   ;(await cookies()).set(SESSION_COOKIE, token, {
     httpOnly: true,
     sameSite: 'lax',
