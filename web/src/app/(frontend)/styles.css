@@ -2676,6 +2676,56 @@ html, body { overflow-x: clip; }
 .contact-submit:hover { background: var(--red); transform: translateY(-2px); }
 .contact-submit .arrow { transition: transform var(--d-fast) var(--ease); }
 .contact-submit:hover .arrow { transform: translateX(5px); }
+.contact-submit:disabled { opacity: 0.6; cursor: progress; transform: none; }
+.contact-submit:disabled:hover { background: inherit; transform: none; }
+.contact-error { color: var(--red); font-size: 0.9rem; margin: 0.25rem 0 -0.5rem; }
+.contact-form input[aria-invalid='true'] { border-color: var(--red); }
+
+/* Skip-to-content link: off-screen until focused (keyboard a11y). */
+.skip-link {
+  position: fixed;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 1000;
+  padding: 0.6rem 1rem;
+  background: #fff;
+  color: #0c2758;
+  border-radius: 6px;
+  font-weight: 600;
+  transform: translateY(-200%);
+  transition: transform var(--d-fast, 0.2s) var(--ease, ease);
+}
+.skip-link:focus { transform: translateY(0); outline: 2px solid var(--red); }
+
+/* Team hero stats (count-ups) */
+.team-hero-stats {
+  list-style: none;
+  margin: 3rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.5rem 4rem;
+}
+.team-hero-stat { display: flex; flex-direction: column; gap: 0.35rem; }
+.team-hero-stat .ths-num { font-size: clamp(2.2rem, 5vw, 3.4rem); font-weight: 600; line-height: 1; }
+.team-hero-stat .ths-suffix { margin-left: 0.1em; }
+.team-hero-stat .ths-label { font-size: 0.9rem; letter-spacing: 0.02em; opacity: 0.8; }
+.foot-copyright { display: block; opacity: 0.7; }
+
+/* Mapbox office map */
+.office-map-wrap { display: flex; flex-direction: column; gap: 1.25rem; }
+.office-map {
+  width: 100%;
+  height: clamp(320px, 48vh, 560px);
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+.office-map .mapboxgl-popup-content { color: #0c2758; font-size: 0.85rem; line-height: 1.4; border-radius: 8px; }
+.office-map-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 1.5rem 3rem; }
+.office-map-legend li { display: flex; flex-direction: column; gap: 0.15rem; max-width: 360px; }
+.office-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; }
+.office-card { padding: 1.25rem 1.4rem; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 12px; display: flex; flex-direction: column; gap: 0.2rem; }
 
 /* success state */
 .contact-success { animation: previewIn 600ms var(--ease); max-width: 46ch; }

@@ -1,7 +1,15 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
+  // Emit a self-contained server bundle (.next/standalone + server.js) so the
+  // Dockerfile's `COPY .next/standalone` / `node server.js` actually have something
+  // to run. Vercel ignores this; it only matters for the Docker/self-host path.
+  output: 'standalone',
   images: {
+    // No image optimization: every image/video is served at its original quality
+    // (no resizing, no recompression, no format change). next/image acts as a
+    // straight pass-through so the frontend shows the exact source asset clarity.
+    unoptimized: true,
     localPatterns: [
       { pathname: '/assets/**' }, // seeded prototype assets
       { pathname: '/uploads/**' }, // admin uploads (local dev)
@@ -9,22 +17,24 @@ const nextConfig: NextConfig = {
     ],
     remotePatterns: [
       { protocol: 'https', hostname: '*.public.blob.vercel-storage.com' }, // Vercel Blob media
-      { protocol: 'https', hostname: 'cdn.sanity.io' }, // Sanity image CDN
     ],
   },
   // Security response headers. CSP keeps script-src permissive enough for Next's
-  // inline runtime, GSAP, and the embedded Sanity Studio (eval), while locking down
-  // object/base/frame-ancestors and restricting img/media/connect origins. The
-  // stored-XSS vector is additionally closed by server-side sanitisation.
+  // inline runtime and GSAP, while locking down object/base/frame-ancestors and
+  // restricting img/media/connect origins. The stored-XSS vector is additionally
+  // closed by server-side sanitisation.
   async headers() {
     const csp = [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      "script-src 'self' 'unsafe-inline'",
       "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob: https://*.public.blob.vercel-storage.com https://cdn.sanity.io",
-      "media-src 'self' https://*.public.blob.vercel-storage.com https://cdn.sanity.io",
+      "img-src 'self' data: blob: https://*.public.blob.vercel-storage.com https://api.mapbox.com https://*.tiles.mapbox.com",
+      "media-src 'self' https://*.public.blob.vercel-storage.com",
       "font-src 'self' data:",
-      "connect-src 'self' https://*.sanity.io wss://*.sanity.io https://*.public.blob.vercel-storage.com",
+      // Mapbox GL fetches styles/tiles from api.mapbox.com and posts telemetry to events.mapbox.com.
+      "connect-src 'self' https://*.public.blob.vercel-storage.com https://api.mapbox.com https://events.mapbox.com",
+      "worker-src 'self' blob:", // Mapbox GL runs its renderer in a blob web worker
+      "child-src blob:",
       "frame-src 'self' https://www.google.com",
       "frame-ancestors 'self'",
       "base-uri 'self'",

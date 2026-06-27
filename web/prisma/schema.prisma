@@ -68,7 +68,8 @@ model User {
   createdAt    DateTime @default(now())
 }
 
-/// Durable failed-login throttle (brute-force protection), keyed by email.
+/// Durable failed-login throttle (brute-force protection), keyed by source IP
+/// (keying on IP, not email, avoids an account-lockout DoS).
 model LoginAttempt {
   key      String   @id
   fails    Int      @default(0)
@@ -85,6 +86,22 @@ model AuditLog {
   at        DateTime @default(now())
 
   @@index([at])
+}
+
+/// Contact-form submissions. Persisted so an enquiry is never silently lost;
+/// viewable via Prisma Studio / an admin view.
+model Enquiry {
+  id        Int      @id @default(autoincrement())
+  enquiry   String   @default("") // selected enquiry type
+  firstName String
+  lastName  String   @default("")
+  email     String
+  phone     String   @default("")
+  company   String   @default("")
+  message   String
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
 }
 
 /// Point-in-time content snapshot for version history + one-click rollback.

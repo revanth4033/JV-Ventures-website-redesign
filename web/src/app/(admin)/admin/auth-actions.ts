@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs'
 import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 
-import { SESSION_COOKIE, signSession } from '@/lib/auth'
+import { SESSION_COOKIE, sessionCookieOptions, signSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
 // Durable brute-force throttle, backed by the database (works across serverless
@@ -49,13 +49,7 @@ export async function login(_prev: { error?: string } | null, formData: FormData
   }
   await prisma.loginAttempt.deleteMany({ where: { key: throttleKey } }).catch(() => {})
   const token = await signSession({ id: user.id, email: user.email, name: user.name, role: user.role, tv: user.tokenVersion })
-  ;(await cookies()).set(SESSION_COOKIE, token, {
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
-    path: '/',
-    maxAge: 60 * 60 * 24 * 7,
-  })
+  ;(await cookies()).set(SESSION_COOKIE, token, sessionCookieOptions())
   redirect('/admin')
 }
 

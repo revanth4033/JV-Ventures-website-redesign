@@ -13,7 +13,7 @@ export function HomePreview({ settings: s0, home: h0 }: { settings: SiteSettings
     <>
       <Header settings={settings} />
       <main id="top">
-        <Home home={home} />
+        <Home home={home} settings={settings} />
         <ClosingBridge settings={settings} dataAct="02" dataActName="Invitation" />
       </main>
       <Footer settings={settings} />

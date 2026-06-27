@@ -2,7 +2,7 @@
 CREATE SCHEMA IF NOT EXISTS "public";
 
 -- CreateTable
-CREATE TABLE "Singleton" (
+CREATE TABLE IF NOT EXISTS "Singleton" (
     "key" TEXT NOT NULL,
     "data" JSONB NOT NULL,
     "draft" JSONB,
@@ -13,7 +13,7 @@ CREATE TABLE "Singleton" (
 );
 
 -- CreateTable
-CREATE TABLE "Platform" (
+CREATE TABLE IF NOT EXISTS "Platform" (
     "id" SERIAL NOT NULL,
     "slug" TEXT NOT NULL,
     "order" INTEGER NOT NULL DEFAULT 0,
@@ -28,7 +28,7 @@ CREATE TABLE "Platform" (
 );
 
 -- CreateTable
-CREATE TABLE "Media" (
+CREATE TABLE IF NOT EXISTS "Media" (
     "id" SERIAL NOT NULL,
     "url" TEXT NOT NULL,
     "alt" TEXT NOT NULL DEFAULT '',
@@ -45,7 +45,7 @@ CREATE TABLE "Media" (
 );
 
 -- CreateTable
-CREATE TABLE "User" (
+CREATE TABLE IF NOT EXISTS "User" (
     "id" SERIAL NOT NULL,
     "email" TEXT NOT NULL,
     "passwordHash" TEXT NOT NULL,
@@ -57,7 +57,7 @@ CREATE TABLE "User" (
 );
 
 -- CreateTable
-CREATE TABLE "LoginAttempt" (
+CREATE TABLE IF NOT EXISTS "LoginAttempt" (
     "key" TEXT NOT NULL,
     "fails" INTEGER NOT NULL DEFAULT 0,
     "windowAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -66,7 +66,7 @@ CREATE TABLE "LoginAttempt" (
 );
 
 -- CreateTable
-CREATE TABLE "AuditLog" (
+CREATE TABLE IF NOT EXISTS "AuditLog" (
     "id" SERIAL NOT NULL,
     "userEmail" TEXT NOT NULL DEFAULT '',
     "entity" TEXT NOT NULL,
@@ -78,7 +78,7 @@ CREATE TABLE "AuditLog" (
 );
 
 -- CreateTable
-CREATE TABLE "Revision" (
+CREATE TABLE IF NOT EXISTS "Revision" (
     "id" SERIAL NOT NULL,
     "entity" TEXT NOT NULL,
     "label" TEXT NOT NULL DEFAULT '',
@@ -90,26 +90,25 @@ CREATE TABLE "Revision" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Platform_slug_key" ON "Platform"("slug");
+CREATE UNIQUE INDEX IF NOT EXISTS "Platform_slug_key" ON "Platform"("slug");
 
 -- CreateIndex
-CREATE INDEX "Platform_order_idx" ON "Platform"("order");
+CREATE INDEX IF NOT EXISTS "Platform_order_idx" ON "Platform"("order");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Media_url_key" ON "Media"("url");
+CREATE UNIQUE INDEX IF NOT EXISTS "Media_url_key" ON "Media"("url");
 
 -- CreateIndex
-CREATE INDEX "Media_hash_idx" ON "Media"("hash");
+CREATE INDEX IF NOT EXISTS "Media_hash_idx" ON "Media"("hash");
 
 -- CreateIndex
-CREATE INDEX "Media_folder_idx" ON "Media"("folder");
+CREATE INDEX IF NOT EXISTS "Media_folder_idx" ON "Media"("folder");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+CREATE UNIQUE INDEX IF NOT EXISTS "User_email_key" ON "User"("email");
 
 -- CreateIndex
-CREATE INDEX "AuditLog_at_idx" ON "AuditLog"("at");
+CREATE INDEX IF NOT EXISTS "AuditLog_at_idx" ON "AuditLog"("at");
 
 -- CreateIndex
-CREATE INDEX "Revision_entity_at_idx" ON "Revision"("entity", "at");
-
+CREATE INDEX IF NOT EXISTS "Revision_entity_at_idx" ON "Revision"("entity", "at");

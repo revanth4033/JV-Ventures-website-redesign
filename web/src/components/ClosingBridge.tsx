@@ -61,7 +61,7 @@ export function ClosingBridge({
       className={`act act-close ${className}`.trim()}
       id={id}
       data-cms-section="closing"
-      data-act={dataAct}
+      data-act={closingQuote.actIndex || dataAct}
       data-act-name={closingQuote.actName || dataActName}
     >
       <p className="close-statement">

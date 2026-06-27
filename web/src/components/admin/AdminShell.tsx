@@ -5,6 +5,7 @@ import { RailToggle } from './RailToggle'
 
 const LABELS: Record<string, string> = {
   dashboard: 'Dashboard',
+  enquiries: 'Enquiries',
   home: 'Home Page',
   about: 'About Page',
   platforms: 'Platforms',

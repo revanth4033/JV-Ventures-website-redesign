@@ -3,7 +3,7 @@
 import bcrypt from 'bcryptjs'
 import { cookies } from 'next/headers'
 
-import { SESSION_COOKIE, signSession } from '@/lib/auth'
+import { SESSION_COOKIE, sessionCookieOptions, signSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/session'
 
@@ -33,13 +33,7 @@ export async function changePassword(currentPassword: string, newPassword: strin
     data: { passwordHash: await bcrypt.hash(newPassword, 12), tokenVersion: { increment: 1 } },
   })
   const token = await signSession({ id: updated.id, email: updated.email, name: updated.name, role: updated.role, tv: updated.tokenVersion })
-  ;(await cookies()).set(SESSION_COOKIE, token, {
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
-    path: '/',
-    maxAge: 60 * 60 * 24 * 7,
-  })
+  ;(await cookies()).set(SESSION_COOKIE, token, sessionCookieOptions())
   await audit(s.email, 'password-change', user.email)
   return { ok: true }
 }
@@ -54,13 +48,7 @@ export async function updateProfile(name: string, email: string): Promise<Result
   const user = await prisma.user.update({ where: { id: s.id }, data: { name: name.trim(), email: e } })
   // re-issue the session cookie so the new email/name take effect immediately
   const token = await signSession({ id: user.id, email: user.email, name: user.name, role: user.role, tv: user.tokenVersion })
-  ;(await cookies()).set(SESSION_COOKIE, token, {
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
-    path: '/',
-    maxAge: 60 * 60 * 24 * 7,
-  })
+  ;(await cookies()).set(SESSION_COOKIE, token, sessionCookieOptions())
   await audit(s.email, 'profile-update', user.email)
   return { ok: true }
 }
@@ -76,7 +64,9 @@ async function requireAdmin() {
 }
 
 export async function listUsers(): Promise<AdminUser[]> {
-  await me()
+  // The account roster (emails, names, roles) is admin-only — don't let an editor
+  // enumerate other accounts.
+  await requireAdmin()
   return prisma.user.findMany({ orderBy: { createdAt: 'asc' }, select: { id: true, email: true, name: true, role: true } })
 }
 

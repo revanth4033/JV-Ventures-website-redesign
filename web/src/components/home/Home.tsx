@@ -2,19 +2,23 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 
 import { AnimatedTitle } from '@/components/AnimatedTitle'
 import { Rich } from '@/components/Rich'
 import { useSmoothScroll } from '@/components/SmoothScroll'
 import { asset, route } from '@/content'
-import type { DeckSlide, HomePage } from '@/content/types'
+import type { DeckSlide, HomePage, SiteSettings } from '@/content/types'
 import { gsap, ScrollTrigger, useGSAP } from '@/lib/gsap'
 
 const pad = (n: number) => String(n).padStart(2, '0')
 const SOI_CLASS = ['t-edu', 't-rx', 't-care', 't-pod']
 
-function Slide({ slide }: { slide: DeckSlide }) {
+// Give a CSS-background image an accessible name without converting it to <img>
+// (keeps the layout/parallax/clarity unchanged). Decorative when no alt is set.
+const imgA11y = (alt?: string) => (alt ? { role: 'img' as const, 'aria-label': alt } : {})
+
+function Slide({ slide, arrow }: { slide: DeckSlide; arrow: string }) {
   switch (slide.id) {
     case 'investing':
       return (
@@ -26,7 +30,7 @@ function Slide({ slide }: { slide: DeckSlide }) {
             {slide.cta && (
               <Link className="btn-primary slide-cta" href={route(slide.cta.href)}>
                 {slide.cta.label}
-                <span className="arrow">→</span>
+                <span className="arrow">{arrow}</span>
               </Link>
             )}
           </div>
@@ -60,6 +64,7 @@ function Slide({ slide }: { slide: DeckSlide }) {
                 <div
                   className="fb-slice"
                   key={i}
+                  {...imgA11y(s.alt)}
                   style={{
                     backgroundImage: `url(${asset(s.image)})`,
                     ...(s.position ? { backgroundPosition: s.position } : {}),
@@ -88,7 +93,7 @@ function Slide({ slide }: { slide: DeckSlide }) {
       return (
         <article className="slide slide--eco" id="s-ecosystems" data-vpx="6">
           <div className="slide-visual fullbleed">
-            <div className="fb-img" style={{ backgroundImage: `url(${asset(slide.backgroundImage)})` }} />
+            <div className="fb-img" {...imgA11y(slide.backgroundImageAlt)} style={{ backgroundImage: `url(${asset(slide.backgroundImage)})` }} />
             <div className="fb-veil eco-veil" />
           </div>
           <div className="slide-content eco-overlay">
@@ -98,7 +103,7 @@ function Slide({ slide }: { slide: DeckSlide }) {
             {slide.cta && (
               <Link className="btn-primary slide-cta" href={route(slide.cta.href)}>
                 {slide.cta.label}
-                <span className="arrow">→</span>
+                <span className="arrow">{arrow}</span>
               </Link>
             )}
           </div>
@@ -118,7 +123,7 @@ function Slide({ slide }: { slide: DeckSlide }) {
               {slide.cta && (
                 <Link className="btn-primary slide-cta" href={route(slide.cta.href)}>
                   {slide.cta.label}
-                  <span className="arrow">→</span>
+                  <span className="arrow">{arrow}</span>
                 </Link>
               )}
             </div>
@@ -126,7 +131,7 @@ function Slide({ slide }: { slide: DeckSlide }) {
           <div className="slide-visual plat-strips">
             {slide.strips?.map((st, i) => (
               <Link className={`strip${i === 0 ? ' open' : ''}`} href={route(st.href)} key={st.tab}>
-                <div className="strip-img" style={{ backgroundImage: `url(${asset(st.image)})` }} />
+                <div className="strip-img" {...imgA11y(st.imageAlt)} style={{ backgroundImage: `url(${asset(st.image)})` }} />
                 <span className="strip-tab">{st.tab}</span>
                 <img className="strip-logo" src={asset(st.logo)} alt={st.logoAlt} />
                 <div className="strip-stat">
@@ -145,11 +150,21 @@ function Slide({ slide }: { slide: DeckSlide }) {
   }
 }
 
-export function Home({ home }: { home: HomePage }) {
+export function Home({ home, settings }: { home: HomePage; settings: SiteSettings }) {
   const scope = useRef<HTMLDivElement>(null)
   const { lenis, reduced } = useSmoothScroll()
-  const { slides, railChapters, deckActName } = home.deck
+  // Lenis is created in SmoothScroll's post-mount effect, so it's null when this
+  // component's GSAP effect first runs. We keep it in a ref (updated every render)
+  // and read it through the ref inside the effect, so the snap always uses the live
+  // instance WITHOUT re-running the whole effect — re-running would leave a second
+  // wheel listener active and advance two sections per swipe.
+  const lenisRef = useRef(lenis)
+  useEffect(() => {
+    lenisRef.current = lenis
+  }, [lenis])
+  const { slides, railChapters, deckActName, deckActIndex } = home.deck
   const N = slides.length
+  const arrow = settings.ui?.ctaArrow || '→'
 
   useGSAP(
     () => {
@@ -286,83 +301,170 @@ export function Home({ home }: { home: HomePage }) {
       })
 
       const st = tl.scrollTrigger!
-      // exact scroll position of each slide; slide 0 = start, slide N-1 = end,
-      // so a scroll past either end releases the deck to the rest of the page.
-      const goTo = (i: number) => {
-        const target = Math.max(0, Math.min(N - 1, i))
-        const y = st.start + ((st.end - st.start) * target) / STEPS
-        lenis ? lenis.scrollTo(y, { duration: 0.9 }) : window.scrollTo({ top: y, behavior: 'smooth' })
-      }
-      // engaged = scroll sits within the pinned range. Position-based (not
-      // st.isActive) so it stays true at the exact end, where the last slide
-      // rests — otherwise scrolling back up from slide N would not be captured.
-      const engaged = () => {
-        const y = st.scroll()
-        return y >= st.start - 2 && y <= st.end + 2
+
+      // ──────────────────────────────────────────────────────────────────────
+      // SAFE section snap — cannot freeze, because it never blocks input.
+      //
+      // The user ALWAYS scrolls completely freely: we never preventDefault a wheel
+      // event, never lock Lenis, never stop Lenis. The deck scrubs with the scroll
+      // as it always has. The ONLY thing we add is: a short moment AFTER scrolling
+      // settles, if the deck has come to rest between sections, we gently ease it
+      // onto the nearest section with a plain (unlocked) scrollTo — which any fresh
+      // scroll immediately overrides. Nothing here can ever wedge or freeze scroll.
+      // ──────────────────────────────────────────────────────────────────────
+      const span = () => st.end - st.start
+      const yOf = (i: number) => st.start + (span() * Math.max(0, Math.min(N - 1, i))) / STEPS
+      // Read Lenis' TARGET scroll (where the gesture is heading) — not the current
+      // animated position. We snap ~90ms after the wheel, when Lenis has barely begun
+      // lerping, so lenis.scroll still reads near-zero movement; lenis.targetScroll
+      // already reflects the whole gesture, so this reads intent rather than the
+      // half-played-out animation. Falls back to the animated position if unavailable.
+      const here = () => {
+        const l = lenisRef.current
+        if (!l) return st.scroll()
+        const t = (l as unknown as { targetScroll?: number }).targetScroll
+        return typeof t === 'number' ? t : l.scroll
       }
 
-      const onChapterClick = (e: Event) => goTo(+(e.currentTarget as HTMLElement).dataset.i!)
+      // `base` is the section we last settled on — the anchor for DIRECTIONAL
+      // snapping, so even a slight scroll in a direction commits to the NEXT section
+      // that way (rather than snapping back to the nearest, which would ignore a
+      // gentle swipe). It is the only state we keep, and it never blocks scrolling.
+      let base = 0
+      // Set whenever the scroll is outside the deck (closing section / footer / very
+      // top). The first settle AFTER coming back in lands on the NEAREST section, so
+      // re-entering up from the footer rests on slide 4 instead of skipping it.
+      let wasOutside = false
+      // Direction of the most recent wheel (+1 down, −1 up). A slow scroll is a series
+      // of small notches, each individually below the "advance" threshold; without a
+      // direction memory the snap pulls every one back to the current section and the
+      // deck never advances (it visibly jitters between two slides — the "stuck"
+      // report). With it, any movement THE WAY YOU ARE SCROLLING commits to the next
+      // section, so even slow notches step forward cleanly.
+      let lastDir = 0
+      const easeToSection = (i: number) => {
+        base = Math.max(0, Math.min(N - 1, i))
+        const y = yOf(base)
+        // force:true is essential — we snap right after a wheel, while Lenis still
+        // considers the user "actively scrolling" and would otherwise SILENTLY DROP a
+        // normal scrollTo. force overrides that guard. (It is NOT `lock`: it forces
+        // this one scroll to happen, then releases — it never blocks future input.)
+        const l = lenisRef.current
+        if (l) l.scrollTo(y, { duration: 0.35, force: true })
+        else window.scrollTo({ top: y, behavior: 'smooth' })
+      }
+
+      // After scrolling has been quiet for a beat, settle onto a section.
+      //  • Outside the deck → just remember which edge we're on (for re-entry).
+      //  • A nudge (≥ TH of a section) away from `base` → advance ONE section that way.
+      //  • A big move (> 1 section) → land on the nearest section.
+      //  • Barely moved → stay put.
+      // Because we only ever issue a plain (unlocked) scrollTo here, a fresh scroll
+      // instantly overrides it — nothing can wedge or freeze.
+      let snapTimer: ReturnType<typeof setTimeout> | undefined
+      const snapToNearest = () => {
+        const s = span()
+        if (s <= 0) return
+        const y = here()
+        if (y < st.start || y > st.end) {
+          wasOutside = true
+          base = y >= st.end ? N - 1 : 0
+          return
+        }
+        const cur = ((y - st.start) / s) * STEPS // fractional section position
+        let target: number
+        if (wasOutside) {
+          // First settle after re-entering → land on the nearest section (so we
+          // never skip slide 4 when coming back up from the footer / closing block).
+          target = Math.round(cur)
+        } else {
+          const delta = cur - base
+          const MICRO = 0.04 // ~36px of a 900px section — a deliberate (not noise) nudge
+          if (Math.abs(delta) > 1) {
+            target = Math.round(cur) // moved more than a full section → land on nearest
+          } else if (Math.abs(delta) >= 0.5) {
+            target = base + (delta > 0 ? 1 : -1) // crossed halfway → advance that way
+          } else if (lastDir !== 0 && Math.sign(delta) === lastDir && Math.abs(delta) >= MICRO) {
+            // small but deliberate movement in the scroll direction → commit forward
+            // instead of snapping back (this is what fixes the slow-scroll "stuck").
+            target = base + lastDir
+          } else {
+            target = base // noise / barely moved → hold the current section
+          }
+        }
+        wasOutside = false
+        target = Math.max(0, Math.min(N - 1, target))
+        base = target
+        if (Math.abs(y - yOf(target)) > 6) easeToSection(target)
+      }
+      // Trigger: fire 90ms after the LAST wheel event. `passive: true` means this can
+      // never block scrolling — it only observes. Snapping off the wheel gesture (not
+      // the slow-decaying scroll stream) lets the snap override Lenis' momentum and
+      // land decisively right after you stop, instead of waiting ~1s for momentum to
+      // bleed off — which is what stranded the deck between sections on faster swipes
+      // and coming back up from the footer.
+      //
+      // We deliberately bind ONLY to wheel. Our own easeToSection() scrolls
+      // programmatically, which does NOT emit wheel events, so the snap animation can
+      // never re-trigger itself mid-flight and reverse direction. (A scroll-stream
+      // backup was tried and removed — it fired during the snap's own animation,
+      // saw the deck between sections, and fought it back the other way.)
+      const onWheelSnap = (e: WheelEvent) => {
+        if (e.deltaY) lastDir = Math.sign(e.deltaY)
+        clearTimeout(snapTimer)
+        snapTimer = setTimeout(snapToNearest, 90)
+      }
+      window.addEventListener('wheel', onWheelSnap, { passive: true })
+
+      // Chapter rail click → ease to that section.
+      const onChapterClick = (e: Event) => easeToSection(+(e.currentTarget as HTMLElement).dataset.i!)
       chapters.forEach((c) => c.addEventListener('click', onChapterClick))
 
       // hover a platform strip (slide 04) to fully expand it
       const onStripEnter = (e: Event) => openStrip(stripEls.indexOf(e.currentTarget as HTMLElement))
       stripEls.forEach((s) => s.addEventListener('mouseenter', onStripEnter))
 
+      // Keyboard: arrow / page keys ease to the adjacent section when the deck is on
+      // screen and the user isn't typing in a control. Keys are discrete, so the
+      // preventDefault here can never interfere with continuous wheel scrolling.
       const onKey = (e: KeyboardEvent) => {
-        if (!engaged()) return
-        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-          e.preventDefault()
-          goTo(current + 1)
-        }
-        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-          e.preventDefault()
-          goTo(current - 1)
+        const y = here()
+        if (y < st.start - 2 || y > st.end + 2) return
+        const t = e.target as HTMLElement | null
+        if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT|BUTTON|A)$/.test(t.tagName))) return
+        const cur = Math.max(0, Math.min(N - 1, Math.round(((y - st.start) / Math.max(1, span())) * STEPS)))
+        if (['ArrowRight', 'ArrowDown', 'PageDown'].includes(e.key)) {
+          if (cur < N - 1) {
+            e.preventDefault()
+            easeToSection(cur + 1)
+          }
+        } else if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(e.key)) {
+          if (cur > 0) {
+            e.preventDefault()
+            easeToSection(cur - 1)
+          }
         }
       }
       window.addEventListener('keydown', onKey)
 
-      // wheel hijack (capture-phase, before Lenis): one gesture = one slide.
-      // Momentum keeps the lock alive until the gesture truly settles.
-      let locked = false
-      let unlockTimer: ReturnType<typeof setTimeout> | undefined
-      const scheduleUnlock = () => {
-        clearTimeout(unlockTimer)
-        unlockTimer = setTimeout(() => {
-          locked = false
-        }, 170)
-      }
-      const onWheel = (e: WheelEvent) => {
-        if (!engaged()) return
-        const dir = e.deltaY > 0 ? 1 : -1
-        // let the page scroll away when leaving past either end
-        if ((current >= N - 1 && dir > 0) || (current <= 0 && dir < 0)) return
-        e.preventDefault()
-        e.stopPropagation()
-        if (locked) {
-          scheduleUnlock()
-          return
-        }
-        locked = true
-        goTo(current + dir)
-        scheduleUnlock()
-      }
-      window.addEventListener('wheel', onWheel, { passive: false, capture: true })
-
       // live-preview: jump to a slide when the admin editor switches tabs
-      const onGotoSlide = (e: Event) => goTo((e as CustomEvent<{ index: number }>).detail?.index ?? 0)
+      const onGotoSlide = (e: Event) => easeToSection((e as CustomEvent<{ index: number }>).detail?.index ?? 0)
       window.addEventListener('jv:goto-slide', onGotoSlide as EventListener)
 
       activate(0)
 
       return () => {
+        window.removeEventListener('keydown', onKey)
         chapters.forEach((c) => c.removeEventListener('click', onChapterClick))
         stripEls.forEach((s) => s.removeEventListener('mouseenter', onStripEnter))
-        window.removeEventListener('keydown', onKey)
-        window.removeEventListener('wheel', onWheel, true)
         window.removeEventListener('jv:goto-slide', onGotoSlide as EventListener)
-        clearTimeout(unlockTimer)
+        window.removeEventListener('wheel', onWheelSnap)
+        clearTimeout(snapTimer)
       }
     },
+    // Effect runs ONCE per [reduced, N] — NOT on lenis change (it's read live via
+    // lenisRef inside, so no re-run is needed and we never duplicate the wheel
+    // listener). lenisRef solves the null-at-first-run problem; see its declaration.
     { scope, dependencies: [reduced, N] },
   )
 
@@ -403,11 +505,11 @@ export function Home({ home }: { home: HomePage }) {
 
   return (
     <div ref={scope}>
-      <section className="act deck-stage" id="deck" data-act="00" data-act-name={deckActName}>
+      <section className="act deck-stage" id="deck" data-act={deckActIndex || '00'} data-act-name={deckActName}>
         <div className="deck-viewport">
           <div className="deck-track">
             {slides.map((slide) => (
-              <Slide slide={slide} key={slide.id} />
+              <Slide slide={slide} arrow={arrow} key={slide.id} />
             ))}
           </div>
           <div className="deck-rail">

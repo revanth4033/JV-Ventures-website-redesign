@@ -4,13 +4,13 @@ import { route } from '@/content'
 import type { SiteSettings } from '@/content/types'
 
 export function Footer({ settings }: { settings: SiteSettings }) {
-  const { footer, nav } = settings
+  const { footer } = settings
+  const links = footer.links ?? []
   return (
     <footer className="site-footer" data-cms-section="footer">
-      {/* same links as the top nav */}
       <div className="foot-left">
-        {nav
-          .filter((item) => item.dropdown?.length || (item.href && item.href !== '#'))
+        {links
+          .filter((item) => item.label && item.href)
           .map((item) => (
             <Link
               key={item.label}
@@ -22,7 +22,8 @@ export function Footer({ settings }: { settings: SiteSettings }) {
           ))}
       </div>
       <div className="foot-right">
-        <span>{footer.locations}</span>
+        {footer.locations ? <span>{footer.locations}</span> : null}
+        {footer.copyright ? <span className="foot-copyright">{footer.copyright}</span> : null}
       </div>
     </footer>
   )

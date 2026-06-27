@@ -616,6 +616,28 @@ a { color: var(--blue); text-decoration: none; }
    ============================================================ */
 .modal-bg { position: fixed; inset: 0; background: rgba(8, 20, 45, 0.45); backdrop-filter: blur(3px); display: grid; place-items: center; z-index: 50; padding: 2rem; }
 .modal { background: var(--paper); border-radius: var(--r-lg); width: min(820px, 96vw); max-height: 86vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--sh-pop); }
+
+/* ============================================================
+   ENQUIRIES  (contact-form submissions)
+   ============================================================ */
+.enq-filter { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.2rem; }
+.enq-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.75rem; border: 1px solid var(--line); background: var(--paper); border-radius: 999px; font-size: 0.82rem; color: var(--ink-2); cursor: pointer; }
+.enq-chip span { font-size: 0.72rem; background: var(--line-2); color: var(--ink-2); padding: 0.05em 0.45em; border-radius: 999px; }
+.enq-chip.active { background: var(--ink); border-color: var(--ink); color: #fff; }
+.enq-chip.active span { background: rgba(255, 255, 255, 0.2); color: #fff; }
+.enq-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.9rem; }
+.enq-card { border: 1px solid var(--line); border-radius: var(--r-lg, 12px); background: var(--paper); padding: 1rem 1.15rem; }
+.enq-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+.enq-id { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.enq-name { font-weight: 600; color: var(--ink); }
+.enq-when { font-size: 0.76rem; color: var(--ink-3); white-space: nowrap; }
+.enq-meta { display: flex; flex-wrap: wrap; gap: 0.4rem 1.1rem; margin: 0.55rem 0; font-size: 0.84rem; color: var(--ink-2); }
+.enq-meta a, .enq-meta span { display: inline-flex; align-items: center; gap: 0.35rem; color: var(--ink-2); }
+.enq-meta a:hover { color: var(--red); }
+.enq-msg { margin: 0.3rem 0 0.8rem; color: var(--ink); line-height: 1.55; white-space: pre-wrap; }
+.enq-actions { display: flex; gap: 0.5rem; }
+.enq-del { color: var(--danger); border-color: var(--danger-50); }
+.enq-del:hover:not(:disabled) { background: var(--danger-50); }
 .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.3rem; border-bottom: 1px solid var(--line-2); }
 .modal-head h2 { font-family: var(--font-display); font-weight: 600; font-size: 1rem; margin: 0; }
 .modal-body { padding: 1.2rem 1.3rem; overflow: auto; }

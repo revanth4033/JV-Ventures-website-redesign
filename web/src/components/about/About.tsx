@@ -12,11 +12,14 @@ import type { AboutPage, SiteSettings } from '@/content/types'
 import { EASE, gsap, ScrollTrigger, useGSAP } from '@/lib/gsap'
 
 const pad = (n: number) => String(n).padStart(2, '0')
+// Accessible name for a CSS-background image without converting it to <img>.
+const imgA11y = (alt?: string) => (alt ? { role: 'img' as const, 'aria-label': alt } : {})
 
 export function About({ about, settings }: { about: AboutPage; settings: SiteSettings }) {
   const scope = useRef<HTMLDivElement>(null)
   const { reduced } = useSmoothScroll()
   const { hero, belief, method, models, ecosystem, grids } = about
+  const arrow = settings.ui?.ctaArrow || '→'
 
   useGSAP(
     () => {
@@ -172,7 +175,7 @@ export function About({ about, settings }: { about: AboutPage; settings: SiteSet
 
       <main id="top">
         {/* ACT 0 · ORIGIN */}
-        <section className="act about-hero" data-cms-section="hero" data-act="00" data-act-name={hero.actName} data-hero>
+        <section className="act about-hero" data-cms-section="hero" data-act={hero.actIndex || '00'} data-act-name={hero.actName} data-hero>
           <AnimatedTitle as="h1" className="about-title" title={hero.title} />
           <div className="about-head">
             <Rich as="p" className="about-sub" html={hero.subtitle} />
@@ -186,7 +189,7 @@ export function About({ about, settings }: { about: AboutPage; settings: SiteSet
             </div>
           </div>
           <div className="hero-band reveal">
-            <div className="hero-band-img" style={{ backgroundImage: `url(${asset(hero.heroImage)})` }} />
+            <div className="hero-band-img" {...imgA11y(hero.heroImageAlt)} style={{ backgroundImage: `url(${asset(hero.heroImage)})` }} />
           </div>
           <div className="ledger reveal">
             {hero.ledger.map((item, i) => (
@@ -207,7 +210,7 @@ export function About({ about, settings }: { about: AboutPage; settings: SiteSet
         </section>
 
         {/* ACT 1 · BELIEF */}
-        <section className="act act-belief" data-cms-section="belief" data-act="01" data-act-name={belief.actName}>
+        <section className="act act-belief" data-cms-section="belief" data-act={belief.actIndex || '01'} data-act-name={belief.actName}>
           <p className="belief-kicker reveal">{belief.kicker}</p>
           <div className="belief-triptych">
             {belief.rows.map((r) => (
@@ -225,7 +228,7 @@ export function About({ about, settings }: { about: AboutPage; settings: SiteSet
         </section>
 
         {/* ACT 2 · METHOD */}
-        <section className="act act-method" id="method" data-cms-section="method" data-act="02" data-act-name={method.actName}>
+        <section className="act act-method" id="method" data-cms-section="method" data-act={method.actIndex || '02'} data-act-name={method.actName}>
           <div className="grids-head">
             <AnimatedTitle as="h2" className="section-title" title={method.title} />
             <p className="section-copy reveal">{method.copy}</p>
@@ -234,7 +237,7 @@ export function About({ about, settings }: { about: AboutPage; settings: SiteSet
             {method.cards.map((c, i) => (
               <article className="dcard" key={i}>
                 <div className="dshade" aria-hidden="true" />
-                <span className="dcard-ghost">{pad(i + 1)}</span>
+                <span className="dcard-ghost">{c.stage || pad(i + 1)}</span>
                 <div className="dcard-left">
                   <img className="step-icon" src={asset(c.icon)} alt="" loading="lazy" decoding="async" />
                   <h3 className="dcard-title" dangerouslySetInnerHTML={{ __html: c.title }} />
@@ -248,7 +251,7 @@ export function About({ about, settings }: { about: AboutPage; settings: SiteSet
         </section>
 
         {/* ACT 3 · MODELS */}
-        <section className="act act-models" id="models" data-cms-section="models" data-act="03" data-act-name={models.actName}>
+        <section className="act act-models" id="models" data-cms-section="models" data-act={models.actIndex || '03'} data-act-name={models.actName}>
           <div className="grids-head">
             <AnimatedTitle as="h2" className="section-title" title={models.title} />
             <p className="section-copy reveal">{models.copy}</p>
@@ -281,7 +284,7 @@ export function About({ about, settings }: { about: AboutPage; settings: SiteSet
         </section>
 
         {/* ACT 4 · ECOSYSTEM */}
-        <section className="act act-eco" data-cms-section="ecosystem" data-act="04" data-act-name={ecosystem.actName}>
+        <section className="act act-eco" data-cms-section="ecosystem" data-act={ecosystem.actIndex || '04'} data-act-name={ecosystem.actName}>
           <div className="grids-head">
             <AnimatedTitle as="h2" className="section-title" title={ecosystem.title} />
             <p className="section-copy reveal">{ecosystem.copy}</p>
@@ -289,11 +292,11 @@ export function About({ about, settings }: { about: AboutPage; settings: SiteSet
           <div className="eco-band">
             {ecosystem.tiles.map((t) => (
               <Link className="eco-tile reveal" href={route(t.href)} key={t.logoAlt}>
-                <div className="eco-img" style={{ backgroundImage: `url(${asset(t.image)})` }} />
+                <div className="eco-img" {...imgA11y(t.imageAlt)} style={{ backgroundImage: `url(${asset(t.image)})` }} />
                 <div className="eco-info">
                   <p>{t.text}</p>
                   <span className="eco-more">
-                    {t.moreLabel} <span className="arrow">→</span>
+                    {t.moreLabel} <span className="arrow">{arrow}</span>
                   </span>
                 </div>
                 <img className="eco-logo" src={asset(t.logo)} alt={t.logoAlt} loading="lazy" decoding="async" />
@@ -303,14 +306,14 @@ export function About({ about, settings }: { about: AboutPage; settings: SiteSet
         </section>
 
         {/* ACT 5 · GRIDS morph */}
-        <section className="act act-morph" id="grids-deep" data-cms-section="grids" data-act="05" data-act-name={grids.actName}>
+        <section className="act act-morph" id="grids-deep" data-cms-section="grids" data-act={grids.actIndex || '05'} data-act-name={grids.actName}>
           <div className="grids-head">
             <AnimatedTitle as="h2" className="section-title" title={grids.title} />
             <p className="section-copy reveal">{grids.copy}</p>
           </div>
           <div className="morph-stage">
             <div className="morph-window">
-              <img className="morph-img" src={asset(grids.morphImage)} alt="" />
+              <img className="morph-img" src={asset(grids.morphImage)} alt={grids.morphAlt || ''} />
               <div className="morph-label label-a">
                 <h4>{grids.labelA.title}</h4>
                 <p>{grids.labelA.text}</p>

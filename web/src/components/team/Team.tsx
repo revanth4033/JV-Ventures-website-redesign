@@ -30,11 +30,13 @@ const initials = (name: string): string => {
 function Portrait({
   name,
   photo,
+  photoAlt,
   linkedin,
   className = '',
 }: {
   name: string
   photo?: string
+  photoAlt?: string
   linkedin?: string
   className?: string
 }) {
@@ -43,11 +45,10 @@ function Portrait({
       {photo ? (
         <Image
           src={asset(photo)}
-          alt=""
+          alt={photoAlt || name}
           fill
           sizes="(max-width: 768px) 45vw, 360px"
           style={{ objectFit: 'cover', objectPosition: 'center 22%' }}
-          aria-hidden="true"
         />
       ) : (
         <span aria-hidden="true">{initials(name)}</span>
@@ -70,7 +71,10 @@ function Portrait({
 export function Team({ team, settings }: { team: TeamPage; settings: SiteSettings }) {
   const scope = useRef<HTMLDivElement>(null)
   const { reduced } = useSmoothScroll()
-  const { hero, foundersTitle, foundersActName, founders, rosterTitle, rosterActName, rosterCopy, groups } = team
+  const {
+    hero, foundersTitle, foundersActName, foundersActIndex, founders,
+    rosterTitle, rosterActName, rosterActIndex, rosterCopy, groups,
+  } = team
 
   // flatten members with their venture for the gallery
   const roster = groups.flatMap((g) => g.members.map((m) => ({ ...m, venture: g.venture })))
@@ -170,16 +174,31 @@ export function Team({ team, settings }: { team: TeamPage; settings: SiteSetting
     <div ref={scope}>
       <main id="top">
         {/* ACT 1 · HERO */}
-        <section className="act team-hero" data-cms-section="hero" data-act="01" data-act-name={hero.actName} data-hero>
+        <section className="act team-hero" data-cms-section="hero" data-act={hero.actIndex || '01'} data-act-name={hero.actName} data-hero>
           <span className="team-kicker">{hero.kicker}</span>
           <div className="team-hero-row">
             <AnimatedTitle as="h1" className="team-title" title={hero.title} />
             <p className="team-intro reveal">{hero.intro}</p>
           </div>
+          {hero.stats?.length ? (
+            <ul className="team-hero-stats reveal">
+              {hero.stats.map((s) => (
+                <li className="team-hero-stat" key={s.label}>
+                  <span className="ths-num">
+                    <span className="count-num" data-count={s.value}>
+                      0
+                    </span>
+                    {s.suffix ? <span className="ths-suffix">{s.suffix}</span> : null}
+                  </span>
+                  <span className="ths-label">{s.label}</span>
+                </li>
+              ))}
+            </ul>
+          ) : null}
         </section>
 
         {/* ACT 2 · CO-FOUNDERS */}
-        <section className="act team-founders" data-cms-section="founders" data-act="02" data-act-name={foundersActName || 'Founders'}>
+        <section className="act team-founders" data-cms-section="founders" data-act={foundersActIndex || '02'} data-act-name={foundersActName || 'Founders'}>
           <header className="team-section-head">
             <h2 className="section-title">
               <span className="line">
@@ -191,7 +210,7 @@ export function Team({ team, settings }: { team: TeamPage; settings: SiteSetting
             {founders.map((f, i) => (
               <article className="founder" data-side={i % 2 === 0 ? 'left' : 'right'} key={f.name}>
                 <div className="founder-media">
-                  <Portrait name={f.name} photo={f.photo} linkedin={f.linkedin} className="founder-portrait" />
+                  <Portrait name={f.name} photo={f.photo} photoAlt={f.photoAlt} linkedin={f.linkedin} className="founder-portrait" />
                 </div>
                 <div className="founder-body">
                   <span className="founder-role reveal">{f.role}</span>
@@ -215,7 +234,7 @@ export function Team({ team, settings }: { team: TeamPage; settings: SiteSetting
         </section>
 
         {/* ACT 3 · PORTFOLIO LEADERSHIP — every leader shown, editorial stagger */}
-        <section className="act team-roster" data-cms-section="roster" data-act="03" data-act-name={rosterActName || 'Leadership'}>
+        <section className="act team-roster" data-cms-section="roster" data-act={rosterActIndex || '03'} data-act-name={rosterActName || 'Leadership'}>
           <header className="grids-head">
             <h2 className="section-title">
               <span className="line">
@@ -230,7 +249,7 @@ export function Team({ team, settings }: { team: TeamPage; settings: SiteSetting
           <div className="team-gallery">
             {roster.map((m) => (
               <figure className="tm-card" key={m.name}>
-                <Portrait name={m.name} photo={m.photo} linkedin={m.linkedin} className="tm-photo" />
+                <Portrait name={m.name} photo={m.photo} photoAlt={m.photoAlt} linkedin={m.linkedin} className="tm-photo" />
                 <figcaption>
                   <span className="tm-venture">{m.venture}</span>
                   <h3 className="tm-name">{m.name}</h3>

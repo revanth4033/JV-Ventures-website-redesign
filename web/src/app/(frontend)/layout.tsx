@@ -17,41 +17,51 @@ const montserrat = Montserrat({
   variable: '--font-montserrat',
 })
 
-export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'),
-  title: {
-    default: 'JV Ventures — Reimagining Investing',
-    template: '%s — JV Ventures',
-  },
-  description:
-    'JV Ventures is a value-creation partner with a $550M portfolio, building institutional platforms across education, lifesciences, healthcare, and managed living.',
-  icons: { icon: '/favicon.png' },
-  openGraph: {
-    type: 'website',
-    siteName: 'JV Ventures',
-    locale: 'en',
-  },
-  twitter: {
-    card: 'summary_large_image',
-  },
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await loadSiteSettings()
+  const brand = settings.brandName || 'JV Ventures'
+  const seo = settings.seo ?? {}
+  return {
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'),
+    title: {
+      default: seo.title || `${brand} — Reimagining Investing`,
+      template: seo.titleTemplate || `%s — ${brand}`,
+    },
+    description:
+      seo.description ||
+      'JV Ventures is a value-creation partner with a $550M portfolio, building institutional platforms across education, lifesciences, healthcare, and managed living.',
+    icons: { icon: '/favicon.png' },
+    openGraph: {
+      type: 'website',
+      siteName: brand,
+      locale: 'en',
+    },
+    twitter: {
+      card: 'summary_large_image',
+    },
+  }
 }
 
 export default async function FrontendLayout({ children }: { children: React.ReactNode }) {
   const settings = await loadSiteSettings()
   const site = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
+  const brand = settings.brandName || 'JV Ventures'
   const logoSrc = settings.logo?.src
   const orgLd = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'JV Ventures',
+    name: brand,
     url: site,
     ...(logoSrc ? { logo: logoSrc.startsWith('http') ? logoSrc : `${site}${logoSrc}` } : {}),
     ...(settings.footer?.locations ? { areaServed: settings.footer.locations } : {}),
   }
-  const siteLd = { '@context': 'https://schema.org', '@type': 'WebSite', name: 'JV Ventures', url: site }
+  const siteLd = { '@context': 'https://schema.org', '@type': 'WebSite', name: brand, url: site }
   return (
     <html lang="en" className={montserrat.variable}>
       <body>
+        <a href="#top" className="skip-link">
+          {settings.ui?.skipLink || 'Skip to content'}
+        </a>
         <JsonLd data={orgLd} />
         <JsonLd data={siteLd} />
         <SmoothScroll>

@@ -23,9 +23,12 @@ export async function getSession(): Promise<Session | null> {
     })
     if (!user || user.tokenVersion !== session.tv) return null
   } catch {
-    // DB unreachable: fall back to the signature-verified session rather than
-    // locking every editor out during a transient outage.
-    return session
+    // DB unreachable: fail closed. We can't confirm the token hasn't been revoked
+    // (password change / user deletion bumps tokenVersion), so we must not grant
+    // access on signature alone. The admin area needs the DB to do anything useful
+    // anyway, so this only surfaces as "logged out" during an outage, not as a
+    // window where a revoked session keeps working.
+    return null
   }
   return session
 }

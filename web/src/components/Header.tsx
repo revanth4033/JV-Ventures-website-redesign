@@ -9,7 +9,7 @@ import type { SiteSettings } from '@/content/types'
 import { useSmoothScroll } from './SmoothScroll'
 
 export function Header({ settings }: { settings: SiteSettings }) {
-  const { logo, nav } = settings
+  const { logo, nav, ui } = settings
   const headerRef = useRef<HTMLElement>(null)
   const [open, setOpen] = useState(false)
   // which nav dropdown is currently revealed (hover or keyboard focus), so
@@ -25,6 +25,8 @@ export function Header({ settings }: { settings: SiteSettings }) {
   // auto-hide header: track scroll position (Lenis if present, else native) and
   // whether the pointer is hovering the top edge so the bar can pull back down.
   useEffect(() => {
+    // Client-only capability read (no SSR equivalent); intentional one-time set.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setAutoHide(window.matchMedia('(pointer: fine)').matches)
 
     const onScroll = (y: number) => setScrolled(y > 40)
@@ -62,7 +64,7 @@ export function Header({ settings }: { settings: SiteSettings }) {
 
   return (
     <header ref={headerRef} className={`site-header${scrolled && !open ? ' scrolled' : ''}${hidden ? ' is-hidden' : ''}${open ? ' nav-open' : ''}`}>
-      <Link className="logo" href="/" onClick={() => setOpen(false)} data-cms-section="logo">
+      <Link className="logo" href={ui?.logoHref || '/'} onClick={() => setOpen(false)} data-cms-section="logo">
         <Image src={asset(logo.src)} alt={logo.alt} width={240} height={30} priority unoptimized />
       </Link>
       <nav className="site-nav" data-cms-section="navigation">
@@ -120,7 +122,7 @@ export function Header({ settings }: { settings: SiteSettings }) {
       </nav>
       <button
         className="nav-toggle"
-        aria-label="Menu"
+        aria-label={ui?.menuLabel || 'Menu'}
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
       >

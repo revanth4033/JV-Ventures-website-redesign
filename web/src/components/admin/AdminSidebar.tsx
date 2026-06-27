@@ -9,6 +9,7 @@ import {
   History,
   House,
   Image as ImageIcon,
+  Inbox,
   LayoutDashboard,
   LogOut,
   Mail,
@@ -22,7 +23,10 @@ import { logout } from '@/app/(admin)/admin/auth-actions'
 export const NAV = [
   {
     label: 'Overview',
-    items: [{ href: '/admin', key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard }],
+    items: [
+      { href: '/admin', key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+      { href: '/admin/enquiries', key: 'enquiries', label: 'Enquiries', icon: Inbox },
+    ],
   },
   {
     label: 'Pages',

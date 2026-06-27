@@ -10,6 +10,8 @@ import type { Platform as PlatformT, SiteSettings, Venture } from '@/content/typ
 import { EASE, gsap, ScrollTrigger, useGSAP } from '@/lib/gsap'
 
 const pad = (n: number) => String(n).padStart(2, '0')
+// Accessible name for a CSS-background image without converting it to <img>.
+const imgA11y = (alt?: string) => (alt ? { role: 'img' as const, 'aria-label': alt } : {})
 
 type FlatVenture = Venture & { category: string }
 
@@ -49,7 +51,9 @@ function animateNumber(el: HTMLElement, duration = 1.3) {
 }
 
 /* ---------- THEATER: cinematic pinned beats ---------- */
-function VentureTheater({ platform, ventures }: { platform: PlatformT; ventures: FlatVenture[] }) {
+type PlatformLabels = SiteSettings['platformLabels']
+
+function VentureTheater({ platform, ventures, labels }: { platform: PlatformT; ventures: FlatVenture[]; labels?: PlatformLabels }) {
   const ref = useRef<HTMLElement>(null)
   const { lenis } = useSmoothScroll()
   // one beat per category; a category may hold several ventures (e.g. Services
@@ -121,7 +125,18 @@ function VentureTheater({ platform, ventures }: { platform: PlatformT; ventures:
         const y = st.start + ((st.end - st.start) * (j + 0.5)) / C
         lenis ? lenis.scrollTo(y, { duration: 0.9 }) : window.scrollTo({ top: y, behavior: 'smooth' })
       }
-      items.forEach((it) => it.addEventListener('click', onRail))
+      // keyboard equivalent (the rail items are role="button" tabbable)
+      const onRailKey = (e: Event) => {
+        const k = (e as KeyboardEvent).key
+        if (k === 'Enter' || k === ' ') {
+          e.preventDefault()
+          onRail(e)
+        }
+      }
+      items.forEach((it) => {
+        it.addEventListener('click', onRail)
+        it.addEventListener('keydown', onRailKey)
+      })
 
       // prev/next arrows -> cycle ventures within the current category (no scroll)
       const step = (dir: number) => {
@@ -141,7 +156,10 @@ function VentureTheater({ platform, ventures }: { platform: PlatformT; ventures:
       nextBtns.forEach((btn) => btn.addEventListener('click', onNext))
 
       return () => {
-        items.forEach((it) => it.removeEventListener('click', onRail))
+        items.forEach((it) => {
+          it.removeEventListener('click', onRail)
+          it.removeEventListener('keydown', onRailKey)
+        })
         prevBtns.forEach((btn) => btn.removeEventListener('click', onPrev))
         nextBtns.forEach((btn) => btn.removeEventListener('click', onNext))
       }
@@ -154,7 +172,7 @@ function VentureTheater({ platform, ventures }: { platform: PlatformT; ventures:
       <div className="theater theater--index">
         <header className="thx-top">
           <div className="thx-top-left">
-            <span className="ven-rail-kicker">Inside the platform</span>
+            <span className="ven-rail-kicker">{labels?.insideKicker || 'Inside the platform'}</span>
             <img className="thx-wordmark" src={asset(platform.wordmark)} alt={platform.name} loading="lazy" decoding="async" />
           </div>
         </header>
@@ -166,6 +184,7 @@ function VentureTheater({ platform, ventures }: { platform: PlatformT; ventures:
             <div
               className={`th-photo${i === 0 ? ' active' : ''}`}
               key={i}
+              {...imgA11y(v.photoAlt)}
               style={{ backgroundImage: `url(${asset(v.photo)})` }}
             />
           ))}
@@ -178,8 +197,8 @@ function VentureTheater({ platform, ventures }: { platform: PlatformT; ventures:
                 {v.logo ? <img className="ven-logo" src={asset(v.logo)} alt={v.name} loading="lazy" decoding="async" /> : null}
                 {cats[catOf(i)].idxs.length > 1 ? (
                   <div className="thx-nav-pair">
-                    <button type="button" className="thx-nav thx-nav--prev" aria-label="Previous venture">‹</button>
-                    <button type="button" className="thx-nav thx-nav--next" aria-label="Next venture">›</button>
+                    <button type="button" className="thx-nav thx-nav--prev" aria-label={labels?.prevVenture || 'Previous venture'}>‹</button>
+                    <button type="button" className="thx-nav thx-nav--next" aria-label={labels?.nextVenture || 'Next venture'}>›</button>
                   </div>
                 ) : null}
               </div>
@@ -200,7 +219,14 @@ function VentureTheater({ platform, ventures }: { platform: PlatformT; ventures:
         <nav className="thx-tabs">
           <ul className="ven-rail-list">
             {cats.map((c, j) => (
-              <li className={`ven-rail-item${j === 0 ? ' active' : ''}`} data-cat={j} key={c.label}>
+              <li
+                className={`ven-rail-item${j === 0 ? ' active' : ''}`}
+                data-cat={j}
+                key={c.label}
+                role="button"
+                tabIndex={0}
+                aria-label={`Jump to ${c.label}`}
+              >
                 <i>{pad(j + 1)}</i>
                 <span>{c.label}</span>
               </li>
@@ -216,7 +242,7 @@ function VentureTheater({ platform, ventures }: { platform: PlatformT; ventures:
 }
 
 /* ---------- STREAM: editorial blocks (mobile / reduced / single venture) ---------- */
-function VentureStream({ platform, ventures }: { platform: PlatformT; ventures: FlatVenture[] }) {
+function VentureStream({ platform, ventures, labels }: { platform: PlatformT; ventures: FlatVenture[]; labels?: PlatformLabels }) {
   const ref = useRef<HTMLElement>(null)
   const { lenis, reduced } = useSmoothScroll()
 
@@ -250,8 +276,22 @@ function VentureStream({ platform, ventures }: { platform: PlatformT; ventures: 
         const target = blocks[+(e.currentTarget as HTMLElement).dataset.i!]
         lenis ? lenis.scrollTo(target, { offset: -120, duration: 1 }) : target.scrollIntoView({ behavior: 'smooth' })
       }
-      items.forEach((it) => it.addEventListener('click', onClick))
-      return () => items.forEach((it) => it.removeEventListener('click', onClick))
+      const onKey = (e: Event) => {
+        const k = (e as KeyboardEvent).key
+        if (k === 'Enter' || k === ' ') {
+          e.preventDefault()
+          onClick(e)
+        }
+      }
+      items.forEach((it) => {
+        it.addEventListener('click', onClick)
+        it.addEventListener('keydown', onKey)
+      })
+      return () =>
+        items.forEach((it) => {
+          it.removeEventListener('click', onClick)
+          it.removeEventListener('keydown', onKey)
+        })
     },
     { scope: ref, dependencies: [reduced] },
   )
@@ -262,13 +302,20 @@ function VentureStream({ platform, ventures }: { platform: PlatformT; ventures: 
     <section className="act plat-ventures" id="ventures" ref={ref} data-cms-section="ventures">
       <div className="ven-layout">
         <aside className="ven-rail">
-          <span className="ven-rail-kicker">Inside the platform</span>
+          <span className="ven-rail-kicker">{labels?.insideKicker || 'Inside the platform'}</span>
           <div className="ven-rail-name">
             <img src={asset(platform.wordmark)} alt={platform.name} loading="lazy" decoding="async" />
           </div>
           <ul className="ven-rail-list">
             {ventures.map((v, i) => (
-              <li className={`ven-rail-item${i === 0 ? ' active' : ''}`} data-i={i} key={i}>
+              <li
+                className={`ven-rail-item${i === 0 ? ' active' : ''}`}
+                data-i={i}
+                key={i}
+                role="button"
+                tabIndex={0}
+                aria-label={`Jump to ${v.name}`}
+              >
                 <i>{pad(i + 1)}</i>
                 <span>{v.name}</span>
               </li>
@@ -282,7 +329,7 @@ function VentureStream({ platform, ventures }: { platform: PlatformT; ventures: 
                 {startsCategory(i) && <div className="ven-cat">{v.category}</div>}
                 <article className="ven" id={`ven-${i}`} data-i={i}>
                   <div className="ven-media">
-                    <div className="ven-img" style={{ backgroundImage: `url(${asset(v.photo)})` }} />
+                    <div className="ven-img" {...imgA11y(v.photoAlt)} style={{ backgroundImage: `url(${asset(v.photo)})` }} />
                   </div>
                   <div className="ven-body">
                     <div className="ven-logo-wrap">
@@ -327,20 +374,33 @@ export function Platform({
   const { reduced } = useSmoothScroll()
   const ventures = flatten(platform)
   const [mode, setMode] = useState<'stream' | 'theater'>('stream')
+  const labels = settings.platformLabels
+  const arrow = settings.ui?.ctaArrow || '→'
 
-  // decide theater vs stream on the client; reload on breakpoint cross (different DOM worlds)
+  // Decide theater vs stream on the client and switch reactively on breakpoint /
+  // reduced-motion changes. The two are separate components, so changing `mode`
+  // remounts the right one and useGSAP tears down the old one's ScrollTriggers —
+  // no full page reload (which lost scroll position and re-fetched).
   useEffect(() => {
     const bp = window.matchMedia('(min-width: 1024px)')
     const reducedMM = window.matchMedia('(prefers-reduced-motion: reduce)')
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (ventures.length >= 1 && bp.matches && !reducedMM.matches) setMode('theater')
-    const atLoad = bp.matches
-    const onChange = () => {
-      if (bp.matches !== atLoad) location.reload()
+    const decide = () =>
+      setMode(ventures.length >= 1 && bp.matches && !reducedMM.matches ? 'theater' : 'stream')
+    decide()
+    bp.addEventListener('change', decide)
+    reducedMM.addEventListener('change', decide)
+    return () => {
+      bp.removeEventListener('change', decide)
+      reducedMM.removeEventListener('change', decide)
     }
-    bp.addEventListener('change', onChange)
-    return () => bp.removeEventListener('change', onChange)
   }, [ventures.length])
+
+  // After the layout swaps between theater (pinned) and stream, recompute
+  // ScrollTrigger positions so pins/scrubs line up with the new DOM.
+  useEffect(() => {
+    const id = requestAnimationFrame(() => ScrollTrigger.refresh())
+    return () => cancelAnimationFrame(id)
+  }, [mode])
 
   // hero + intro + totals + switcher motion (ventures handled by sub-components)
   useGSAP(
@@ -410,7 +470,7 @@ export function Platform({
         {/* HERO */}
         <section className="act plat-hero" id="hero" data-cms-section="hero">
           <div className="plat-hero-media">
-            <div className="plat-hero-bg" style={{ backgroundImage: `url(${asset(platform.hero)})` }} />
+            <div className="plat-hero-bg" {...imgA11y(platform.heroAlt)} style={{ backgroundImage: `url(${asset(platform.hero)})` }} />
             {platform.video ? <video className="plat-hero-video" muted loop playsInline preload="none" /> : null}
           </div>
           <div className="plat-hero-veil" />
@@ -420,7 +480,7 @@ export function Platform({
             <p className="plat-tagline">{platform.tagline}</p>
           </div>
           <div className="deck-cue plat-cue" aria-hidden="true">
-            <span>Scroll</span>
+            <span>{labels?.scrollCue || 'Scroll'}</span>
             <div className="cue-line" />
           </div>
         </section>
@@ -444,30 +504,32 @@ export function Platform({
 
         {/* VENTURES */}
         {mode === 'theater' ? (
-          <VentureTheater platform={platform} ventures={ventures} />
+          <VentureTheater platform={platform} ventures={ventures} labels={labels} />
         ) : (
-          <VentureStream platform={platform} ventures={ventures} />
+          <VentureStream platform={platform} ventures={ventures} labels={labels} />
         )}
 
         {/* SWITCHER */}
         <section className="act plat-switch" id="switch">
           <h2 className="section-title">
             <span className="line">
-              <span className="line-inner">
-                Explore the <em>other platforms</em>
-              </span>
+              <span
+                className="line-inner"
+                dangerouslySetInnerHTML={{ __html: labels?.switcherTitle || 'Explore the <em>other platforms</em>' }}
+              />
             </span>
           </h2>
           <div className="switch-grid">
             {others.map((o) => (
               <Link className="switch-tile" href={`/platform/${o.slug}`} key={o.slug}>
-                <div className="switch-img" style={{ backgroundImage: `url(${asset(o.hero)})` }} />
+                <div className="switch-img" {...imgA11y(o.heroAlt)} style={{ backgroundImage: `url(${asset(o.hero)})` }} />
                 <div className="switch-meta">
                   <img src={asset(o.wordmark)} alt={o.name} loading="lazy" decoding="async" />
                   <span>{o.sector}</span>
                 </div>
                 <span className="switch-go">
-                  Explore<span className="arrow">→</span>
+                  {labels?.switcherCta || 'Explore'}
+                  <span className="arrow">{arrow}</span>
                 </span>
               </Link>
             ))}

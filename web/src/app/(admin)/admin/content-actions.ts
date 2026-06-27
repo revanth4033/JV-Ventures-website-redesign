@@ -34,15 +34,17 @@ async function guardAdmin() {
   return s
 }
 
-async function revalidateSite() {
-  revalidatePath('/')
-  revalidatePath('/about')
-  revalidatePath('/team')
-  revalidatePath('/contact')
-  revalidatePath('/platform')
+function revalidateSite() {
+  // The global chrome (header, footer, closing block, SEO/metadata) lives in the
+  // (frontend) root layout that EVERY public page shares. Revalidating that layout
+  // once invalidates the whole frontend subtree in a single pass — all static
+  // pages, every dynamic /platform/[slug], and the OG image — so a content edit
+  // (especially a Site Settings change) refreshes consistently across all pages.
+  // This is more reliable than enumerating individual 'page' paths, which left the
+  // shared layout's cached output stale and missed routes like /opengraph-image.
+  revalidatePath('/', 'layout')
+  // Metadata routes that sit outside the (frontend) layout tree:
   revalidatePath('/sitemap.xml')
-  const plats = await prisma.platform.findMany({ select: { slug: true } })
-  for (const p of plats) revalidatePath(`/platform/${p.slug}`)
 }
 
 /** Audit trail + a version snapshot (for rollback). Keeps the latest 30 snapshots per entity. */
@@ -161,7 +163,9 @@ export async function savePlatform(slug: string, data: Data): Promise<Result> {
 
 /** Create a new platform with a unique slug and sensible empty content. */
 export async function createPlatform(input: { name?: string; sector?: string; slug?: string }): Promise<Result & { slug?: string }> {
-  const s = await guard()
+  // Adding a platform is structural (new public route + nav entry) — admins only,
+  // matching deletePlatform.
+  const s = await guardAdmin()
   const name = String(input.name ?? '').trim()
   const slug = toSlug(String(input.slug ?? input.name ?? ''))
   if (!name) return { ok: false, error: 'A platform name is required.' }
@@ -179,8 +183,7 @@ export async function createPlatform(input: { name?: string; sector?: string; sl
   }
   await prisma.platform.create({ data: { slug, name: content.name, sector: content.sector, order, data: json(content) } })
   await record(`platform:${slug}`, name, 'create', s.email, content)
-  revalidatePath('/platform')
-  revalidatePath('/sitemap.xml')
+  revalidateSite()
   return { ok: true, slug }
 }
 
@@ -191,8 +194,7 @@ export async function deletePlatform(slug: string): Promise<Result> {
   if (!row) return { ok: false, error: 'That platform no longer exists.' }
   await prisma.platform.delete({ where: { slug } })
   await record(`platform:${slug}`, row.name, 'delete', s.email)
-  revalidatePath(`/platform/${slug}`)
-  await revalidateSite()
+  revalidateSite()
   return { ok: true }
 }
 
@@ -215,7 +217,8 @@ export async function listAuditLog(limit = 100): Promise<AuditRow[]> {
 
 /** Roll an entity back to a stored revision. */
 export async function restoreRevision(id: number): Promise<Result> {
-  const s = await guard()
+  // Rolling content back is a powerful, site-wide overwrite — admins only.
+  const s = await guardAdmin()
   const rev = await prisma.revision.findUnique({ where: { id } })
   if (!rev) return { ok: false, error: 'Revision not found.' }
   // Re-sanitize on the way back out: don't trust that a stored snapshot was

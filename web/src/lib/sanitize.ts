@@ -14,8 +14,14 @@ const RICH_CONFIG: sanitizeHtml.IOptions = {
   disallowedTagsMode: 'discard',
 }
 
-/** True when a string looks like it contains markup (so plain text is left untouched). */
-const looksLikeHtml = (s: string) => /<[a-z!/]/i.test(s)
+/**
+ * True when a string could contain markup. We key off the presence of any '<'
+ * rather than a tag-shaped regex: a regex like /<[a-z!/]/ misses obfuscated forms
+ * (e.g. "<\tscript") and is the kind of short-circuit that turns into a bypass.
+ * If there is no '<' at all, the string cannot form a tag, so it's safe to leave
+ * untouched (which also avoids HTML-entity-encoding plain text like "R&D" or "a > b").
+ */
+const looksLikeHtml = (s: string) => s.includes('<')
 
 /**
  * Collapse accidental repeated currency symbols ("$$500M" → "$500M"). These slip

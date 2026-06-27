@@ -1,6 +1,5 @@
 // The content seam. Existing imports (`@/content/db`) keep working unchanged; the
-// actual implementation is selected in `@/content/source` (custom by default, or
-// Sanity when CONTENT_SOURCE=sanity).
+// actual implementation lives in `@/content/source` (the custom Prisma source).
 export {
   loadSiteSettings,
   loadHomePage,

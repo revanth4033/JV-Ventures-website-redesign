@@ -1,6 +1,21 @@
 import { SignJWT, jwtVerify } from 'jose'
 
 export const SESSION_COOKIE = 'jv_session'
+export const SESSION_MAX_AGE = 60 * 60 * 24 * 7 // 7 days
+
+// Shared options for the admin session cookie. SameSite=Strict (not Lax) so the
+// cookie is never sent on cross-site requests — a CSRF on a logged-in admin can't
+// drive the state-changing server actions. httpOnly keeps it out of JS; Secure in
+// production keeps it off plaintext HTTP.
+export function sessionCookieOptions() {
+  return {
+    httpOnly: true,
+    sameSite: 'strict' as const,
+    secure: process.env.NODE_ENV === 'production',
+    path: '/',
+    maxAge: SESSION_MAX_AGE,
+  }
+}
 const rawSecret = process.env.AUTH_SECRET || process.env.PAYLOAD_SECRET
 // Fail closed everywhere except an explicit `next dev` run. Keying off
 // NODE_ENV==='production' alone let non-Vercel deploys (Docker, self-host,

@@ -40,12 +40,31 @@
         { "label": "Team", "href": "/team" },
         { "label": "connect@jv.ventures", "href": "mailto:connect@jv.ventures" },
         { "label": "LinkedIn", "href": "https://www.linkedin.com/company/jvventures/", "external": true }
-      ]
+      ],
+      "copyright": "© 2026 JV Ventures. All rights reserved."
     },
-    "seoDefaults": {
-      "siteName": "JV Ventures",
-      "description": "TODO (not present in prototype — to be authored)",
-      "ogImage": "TODO"
+    "brandName": "JV Ventures",
+    "seo": {
+      "title": "JV Ventures — Reimagining Investing",
+      "titleTemplate": "%s — JV Ventures",
+      "description": "JV Ventures is a value-creation partner with a $550M portfolio, building institutional platforms across education, lifesciences, healthcare, and managed living.",
+      "ogTitle": "JV Ventures",
+      "ogSubtitle": "Reimagining Investing",
+      "ogDescription": "A value-creation partner building institutional platforms across education, lifesciences, healthcare & managed living."
+    },
+    "platformLabels": {
+      "scrollCue": "Scroll",
+      "insideKicker": "Inside the platform",
+      "switcherTitle": "Explore the <em>other platforms</em>",
+      "switcherCta": "Explore",
+      "prevVenture": "Previous venture",
+      "nextVenture": "Next venture"
+    },
+    "ui": {
+      "ctaArrow": "→",
+      "skipLink": "Skip to content",
+      "menuLabel": "Menu",
+      "logoHref": "/"
     }
   },
 
@@ -54,6 +73,7 @@
     "deck": {
       "railChapters": ["Investing", "Impact", "Ecosystems", "Platforms"],
       "deckActName": "Who We Are",
+      "deckActIndex": "00",
       "slides": [
         {
           "id": "investing",
@@ -115,6 +135,7 @@
     "seo": { "title": "About — JV Ventures" },
     "hero": {
       "actName": "Origin",
+      "actIndex": "00",
       "title": { "lines": ["Not just", "a venture."], "emphasis": "line:1" },
       "subtitle": "<em>A builder of opportunities and businesses</em>",
       "intro": "Founded in 2015, JV Ventures has evolved into a value-creation partner with a $550 million investment portfolio. Built on a 10+ year legacy of pioneering innovative models in lifesciences and education infrastructure — rooted in identifying structural gaps and building around them with clarity and conviction.",
@@ -129,6 +150,7 @@
     },
     "belief": {
       "actName": "Belief",
+      "actIndex": "01",
       "kicker": "Delivering multidimensional value to investors, operators, communities, and society at large",
       "rows": [
         { "num": "01", "line": "<strong>Clarity</strong> <em>in intent</em>", "note": "We define the outcome before a single rupee is deployed — conviction precedes capital." },
@@ -138,17 +160,19 @@
     },
     "method": {
       "actName": "Method",
+      "actIndex": "02",
       "title": { "lines": ["How we", "work"], "emphasis": "line:1" },
       "copy": "Our approach to turning strategic white spaces into scalable, ecosystem-led businesses.",
       "cards": [
-        { "stage": "Stage 01", "icon": "assets/Frame-1244835893.png", "title": "Identify<br>White Spaces", "desc": "Targeting high-value gaps and building ventures around them with speed, discipline, and durable advantage." },
-        { "stage": "Stage 02", "icon": "assets/Frame-1244835893-2.png", "title": "Back<br>Intrapreneurs", "desc": "Empowering agile, frugal builders to translate ideas into lasting value." },
-        { "stage": "Stage 03", "icon": "assets/Frame-1244835893-1.png", "title": "Forge<br>Partnerships", "desc": "Aligning intent, capital, and capability to create enduring outcomes for investors." },
-        { "stage": "Stage 04", "icon": "assets/Frame-1244835893-3.png", "title": "A Force<br>for Impact", "desc": "Ventures are built with a clear mandate: to address real gaps and scale with purpose." }
+        { "stage": "01", "icon": "assets/Frame-1244835893.png", "title": "Identify<br>White Spaces", "desc": "Targeting high-value gaps and building ventures around them with speed, discipline, and durable advantage." },
+        { "stage": "02", "icon": "assets/Frame-1244835893-2.png", "title": "Back<br>Intrapreneurs", "desc": "Empowering agile, frugal builders to translate ideas into lasting value." },
+        { "stage": "03", "icon": "assets/Frame-1244835893-1.png", "title": "Forge<br>Partnerships", "desc": "Aligning intent, capital, and capability to create enduring outcomes for investors." },
+        { "stage": "04", "icon": "assets/Frame-1244835893-3.png", "title": "A Force<br>for Impact", "desc": "Ventures are built with a clear mandate: to address real gaps and scale with purpose." }
       ]
     },
     "models": {
       "actName": "Models",
+      "actIndex": "03",
       "title": { "lines": ["What we", "pioneered"], "emphasis": "line:1" },
       "copy": "Building the institutional foundations shaping the future of education, lifesciences, healthcare, and managed living infrastructure.",
       "rows": [
@@ -160,6 +184,7 @@
     },
     "ecosystem": {
       "actName": "Ecosystem",
+      "actIndex": "04",
       "title": { "lines": ["Four platforms.", "One ecosystem."], "emphasis": "line:1" },
       "copy": "Purpose-built ventures shaping education, lifesciences, healthcare, and managed living — designed to interconnect, unlock synergies, and amplify impact beyond sectors.",
       "tiles": [
@@ -171,9 +196,11 @@
     },
     "grids": {
       "actName": "GRIDS",
+      "actIndex": "05",
       "title": { "lines": ["GRIDS"] },
       "copy": "Growth-Ready Innovation Destinations transform fragmented, high-growth corridors into integrated ecosystems — powered by education, lifesciences, healthcare, managed living, and community infrastructure.",
       "morphImage": "assets/grid-image-e1780310038339.jpg",
+      "morphAlt": "A fragmented corridor transforming into an integrated GRIDS ecosystem",
       "labelA": { "title": "Fragmented Corridor", "text": "Isolated. Disconnected. Underdeveloped." },
       "labelB": { "title": "Integrated Ecosystem", "text": "Connected. Empowered. Future-ready." },
       "layers": [
@@ -191,6 +218,7 @@
     "seo": { "title": "Team" },
     "hero": {
       "actName": "The People",
+      "actIndex": "01",
       "kicker": "The people",
       "title": { "lines": ["Behind", "the <em>platforms</em>"], "emphasis": "line:1" },
       "intro": "Operators, founders, and investors who turn strategic white space into enduring institutions — across education, lifesciences, healthcare, and managed living.",
@@ -201,11 +229,13 @@
       ]
     },
     "foundersTitle": "Mentors",
+    "foundersActIndex": "02",
     "founders": [
       { "name": "Jasmeet Chhabra", "role": "Co-Founder", "photo": "assets/team/jasmeet-chhabra.png", "linkedin": "https://www.linkedin.com/in/jasmeet-singh-chhabra-1892721/", "highlights": ["20+ years", "$400M+ deployed", "Real estate · Infra · PE"], "bio": "Twenty years across real estate, infrastructure, capital-markets fundraising, and private equity — focused on ideation, innovation, and strategic investments in socially relevant and alternative assets. Has deployed over $400 million across lifesciences, education, healthcare, and managed habitats." },
       { "name": "Vishal Goel", "role": "Co-Founder", "photo": "assets/team/vishal-goel.png", "linkedin": "https://www.linkedin.com/in/vishalhbs/", "highlights": ["20+ years", "$600M+ deployed", "Harvard HBS & GSD"], "bio": "Harvard Business School and Harvard Graduate School of Design alumnus with twenty years building integrated ecosystems. Advised the Government of Andhra Pradesh on India's first Biotech Policy and helped shape Hyderabad's Genome Valley. Has led deployment of over $600 million across sectors." }
     ],
     "rosterTitle": "Intrapreneurs",
+    "rosterActIndex": "03",
     "rosterCopy": "The operators running the businesses we build — venture by venture.",
     "groups": [
       { "venture": "Cappella", "members": [
@@ -249,6 +279,7 @@
     "seo": { "title": "Contact" },
     "hero": {
       "actName": "Contact",
+      "actIndex": "01",
       "kicker": "Contact",
       "title": { "lines": ["Start a", "conversation"], "emphasis": "line:1" },
       "intro": "Whether you're an investor, an operator, or a partner-to-be — tell us what you're building. We read every message that comes through."
@@ -256,13 +287,39 @@
     "email": "connect@jv.ventures",
     "enquiryTypes": ["General", "Partnerships", "Careers", "Press & Media"],
     "offices": [
-      { "city": "Jubilee Hills", "region": "Hyderabad", "address": "Suite 303, Niharika Jubilee One, Nandagiri Hills, Jubilee Hills, Hyderabad 500033, Telangana, India" },
-      { "city": "Financial District", "region": "Hyderabad", "address": "24th Floor, One West, Nanakramguda Service Road, Financial District, Hyderabad 500008, Telangana, India" }
+      { "city": "Jubilee Hills", "region": "Hyderabad", "address": "Suite 303, Niharika Jubilee One, Nandagiri Hills, Jubilee Hills, Hyderabad 500033, Telangana, India", "lat": 17.4239, "lng": 78.4099 },
+      { "city": "Financial District", "region": "Hyderabad", "address": "24th Floor, One West, Nanakramguda Service Road, Financial District, Hyderabad 500008, Telangana, India", "lat": 17.4156, "lng": 78.3489 }
     ],
     "presence": "India · Dubai · Singapore",
     "formIntro": "Send us a note",
+    "bodyActName": "Get in touch",
+    "bodyActIndex": "02",
+    "mapActName": "Find us",
+    "mapActIndex": "03",
     "mapTitle": "Find us",
-    "mapCopy": "Two offices in Hyderabad, at the heart of India’s deep-tech and lifesciences corridor."
+    "mapCopy": "Two offices in Hyderabad, at the heart of India’s deep-tech and lifesciences corridor.",
+    "emailLabel": "Email",
+    "officesLabel": "Offices",
+    "presenceLabel": "Presence",
+    "form": {
+      "enquiryLabel": "Enquiry type",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "email": "Email",
+      "phone": "Phone",
+      "company": "Company",
+      "message": "Your message",
+      "submit": "Send message",
+      "submitting": "Sending…",
+      "successTitle": "Thank you",
+      "successBody": "Your message is on its way. Someone from the team will be in touch shortly — usually within two business days.",
+      "resetLabel": "Send another message",
+      "errorName": "Please enter your first name.",
+      "errorEmail": "Please enter a valid email address.",
+      "errorMessage": "Please enter a message.",
+      "errorGeneric": "Something went wrong sending your message. Please try again, or email us directly.",
+      "errorNetwork": "Network error. Please try again, or email us directly."
+    }
   },
 
   "platforms": [

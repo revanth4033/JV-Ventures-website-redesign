@@ -1,4 +1,4 @@
-import { ArrowRight, Boxes, ExternalLink, FileText, House, Image as ImageIcon, Mail, Settings, Users } from 'lucide-react'
+import { ArrowRight, Boxes, ExternalLink, FileText, House, Image as ImageIcon, Inbox, Mail, Settings, Users } from 'lucide-react'
 import Link from 'next/link'
 
 import { AdminShell } from '@/components/admin/AdminShell'
@@ -8,10 +8,11 @@ import { prisma } from '@/lib/prisma'
 export const dynamic = 'force-dynamic'
 
 export default async function Dashboard() {
-  const [session, platforms, media] = await Promise.all([
+  const [session, platforms, media, enquiries] = await Promise.all([
     getSession(),
     prisma.platform.count().catch(() => 0),
     prisma.media.count().catch(() => 0),
+    prisma.enquiry.count().catch(() => 0),
   ])
   const firstName = (session?.name || session?.email || '').split(/[@.\s]/)[0]
   const greeting = firstName ? `Welcome back, ${firstName[0].toUpperCase()}${firstName.slice(1)}` : 'Welcome back'
@@ -24,6 +25,7 @@ export default async function Dashboard() {
     { href: '/admin/team', icon: Users, t: 'Team Page', d: 'Hero, co-founders, and the venture-by-venture leadership roster.', meta: 'People' },
     { href: '/admin/contact', icon: Mail, t: 'Contact Page', d: 'Hero, email, enquiry types, and office locations.', meta: 'Reach us' },
     { href: '/admin/media', icon: ImageIcon, t: 'Media', d: 'Upload and manage all images and videos used across the site.', meta: `${media} items` },
+    { href: '/admin/enquiries', icon: Inbox, t: 'Enquiries', d: 'Messages submitted through the Contact form — with the selected enquiry type.', meta: `${enquiries} message${enquiries === 1 ? '' : 's'}` },
   ]
 
   return (
@@ -47,6 +49,10 @@ export default async function Dashboard() {
             <b>{media}</b>
             <span>Media items</span>
           </div>
+          <Link href="/admin/enquiries" prefetch={false} className="dash-stat" style={{ textDecoration: 'none' }}>
+            <b>{enquiries}</b>
+            <span>Enquiries</span>
+          </Link>
           <div className="dash-stat">
             <b style={{ color: 'var(--ok)' }}>Live</b>
             <span>Status</span>

@@ -72,18 +72,62 @@ export const siteSettingsSchema: FieldDef[] = [
         fields: [
           { type: 'row', fields: [
             { type: 'text', name: 'label', label: 'Label' },
-            { type: 'text', name: 'href', label: 'Link' },
+            { type: 'text', name: 'href', label: 'Link', hint: 'A page, mailto: address, or full URL.' },
           ] },
           { type: 'checkbox', name: 'external', label: 'Open in a new tab' },
         ],
       },
+      { type: 'text', name: 'footer.copyright', label: 'Copyright line', hint: 'e.g. © 2026 JV Ventures. Leave blank to hide.' },
+    ],
+  },
+  {
+    type: 'section', name: 'brandSeo', label: 'Brand & SEO',
+    fields: [
+      { type: 'text', name: 'brandName', label: 'Brand name', hint: 'Used in metadata, structured data, and the social share image.' },
+      { type: 'text', name: 'seo.title', label: 'Default page title', hint: 'Shown when a page has no title of its own.' },
+      { type: 'text', name: 'seo.titleTemplate', label: 'Title template', hint: 'Use %s for the page title, e.g. “%s — JV Ventures”.' },
+      { type: 'textarea', name: 'seo.description', label: 'Default description', hint: 'Default search/social summary (~150–160 chars).' },
+      { type: 'text', name: 'seo.ogTitle', label: 'Share image — title' },
+      { type: 'text', name: 'seo.ogSubtitle', label: 'Share image — subtitle' },
+      { type: 'textarea', name: 'seo.ogDescription', label: 'Share image — description' },
+    ],
+  },
+  {
+    type: 'section', name: 'platformLabels', label: 'Platform page labels',
+    fields: [
+      { type: 'row', fields: [
+        { type: 'text', name: 'platformLabels.scrollCue', label: '“Scroll” cue' },
+        { type: 'text', name: 'platformLabels.insideKicker', label: 'Ventures rail kicker' },
+      ] },
+      { type: 'text', name: 'platformLabels.switcherTitle', label: 'Switcher heading', hint: 'Use <em>…</em> to italicise part of it.' },
+      { type: 'row', fields: [
+        { type: 'text', name: 'platformLabels.switcherCta', label: 'Switcher link label' },
+        { type: 'text', name: 'platformLabels.prevVenture', label: 'Prev-venture button label' },
+        { type: 'text', name: 'platformLabels.nextVenture', label: 'Next-venture button label' },
+      ] },
+    ],
+  },
+  {
+    type: 'section', name: 'uiLabels', label: 'Interface labels',
+    fields: [
+      { type: 'row', fields: [
+        { type: 'text', name: 'ui.ctaArrow', label: 'CTA arrow glyph', hint: 'The small arrow on buttons/links (defaults to →).' },
+        { type: 'text', name: 'ui.skipLink', label: '“Skip to content” link' },
+      ] },
+      { type: 'row', fields: [
+        { type: 'text', name: 'ui.menuLabel', label: 'Mobile menu button label' },
+        { type: 'text', name: 'ui.logoHref', label: 'Logo links to', hint: 'Defaults to the home page (/).' },
+      ] },
     ],
   },
   {
     type: 'section', name: 'closing', label: 'Closing block',
     fields: [
       { type: 'richList', name: 'closingQuote.lines', label: 'Closing quote', hint: 'One line per row. Use the toolbar to emphasise words.' },
-      { type: 'text', name: 'closingQuote.actName', label: 'Closing act label', hint: 'Scroll-indicator label on the closing block (defaults to “Invitation”).' },
+      { type: 'row', fields: [
+        { type: 'text', name: 'closingQuote.actName', label: 'Closing act label', hint: 'Defaults to “Invitation”.' },
+        { type: 'text', name: 'closingQuote.actIndex', label: 'Closing act number', hint: 'Overrides the per-page number on the closing block.' },
+      ] },
       { type: 'image', name: 'bridgeImage.src', label: 'Bridge image' },
       { type: 'text', name: 'bridgeImage.alt', label: 'Bridge image alt text' },
     ],
@@ -95,7 +139,10 @@ export const homeSchema: FieldDef[] = [
   {
     type: 'group', name: 'deck', label: 'Deck settings',
     fields: [
-      { type: 'text', name: 'deckActName', label: 'Deck label' },
+      { type: 'row', fields: [
+        { type: 'text', name: 'deckActName', label: 'Deck label' },
+        { type: 'text', name: 'deckActIndex', label: 'Deck number' },
+      ] },
       { type: 'stringList', name: 'railChapters', label: 'Rail chapter labels', hint: 'One per slide, in order.' },
     ],
   },
@@ -121,8 +168,14 @@ export const homeSchema: FieldDef[] = [
       titleField(),
       {
         type: 'array', name: 'backgroundSlices', label: 'Background images',
-        newItem: () => ({ image: '', position: '' }),
-        fields: [{ type: 'image', name: 'image', label: 'Image' }, { type: 'text', name: 'position', label: 'Position', hint: 'e.g. center 20%' }],
+        newItem: () => ({ image: '', position: '', alt: '' }),
+        fields: [
+          { type: 'image', name: 'image', label: 'Image' },
+          { type: 'row', fields: [
+            { type: 'text', name: 'position', label: 'Position', hint: 'e.g. center 20%' },
+            { type: 'text', name: 'alt', label: 'Alt text', hint: 'Leave blank if purely decorative.' },
+          ] },
+        ],
       },
       {
         type: 'array', name: 'stats', label: 'Stats', flat: true,
@@ -145,6 +198,7 @@ export const homeSchema: FieldDef[] = [
       { type: 'rich', name: 'copy', label: 'Body copy' },
       cta(),
       { type: 'image', name: 'backgroundImage', label: 'Background image' },
+      { type: 'text', name: 'backgroundImageAlt', label: 'Background image alt text', hint: 'Leave blank if purely decorative.' },
     ],
   },
   {
@@ -156,7 +210,7 @@ export const homeSchema: FieldDef[] = [
       cta(),
       {
         type: 'array', name: 'strips', label: 'Platform strips', itemTitleKey: 'tab',
-        newItem: () => ({ tab: '', logo: '', logoAlt: '', image: '', statStrong: '', statSpan: '', desc: '', href: '' }),
+        newItem: () => ({ tab: '', logo: '', logoAlt: '', image: '', imageAlt: '', statStrong: '', statSpan: '', desc: '', href: '' }),
         fields: [
           { type: 'text', name: 'tab', label: 'Sector tab' },
           { type: 'text', name: 'logoAlt', label: 'Logo alt text', hint: 'Describes the logo for screen readers.' },
@@ -164,6 +218,7 @@ export const homeSchema: FieldDef[] = [
             { type: 'image', name: 'logo', label: 'Logo' },
             { type: 'image', name: 'image', label: 'Background image' },
           ] },
+          { type: 'text', name: 'imageAlt', label: 'Background image alt text', hint: 'Leave blank if purely decorative.' },
           { type: 'row', fields: [
             { type: 'text', name: 'statStrong', label: 'Stat (bold)' },
             { type: 'text', name: 'statSpan', label: 'Stat (caption)' },
@@ -182,12 +237,16 @@ export const aboutSchema: FieldDef[] = [
   {
     type: 'group', name: 'hero', label: 'Hero',
     fields: [
-      { type: 'text', name: 'actName', label: 'Act label' },
+      { type: 'row', fields: [
+        { type: 'text', name: 'actName', label: 'Act label' },
+        { type: 'text', name: 'actIndex', label: 'Act number' },
+      ] },
       titleField(),
       { type: 'rich', name: 'subtitle', label: 'Subtitle' },
       { type: 'textarea', name: 'intro', label: 'Intro paragraph' },
       { type: 'stringList', name: 'sectorChips', label: 'Sector chips' },
       { type: 'image', name: 'heroImage', label: 'Hero band image' },
+      { type: 'text', name: 'heroImageAlt', label: 'Hero image alt text', hint: 'Leave blank if decorative.' },
       {
         type: 'array', name: 'ledger', label: 'Ledger stats', flat: true,
         newItem: () => ({ value: 0, prefix: '', suffix: '', plain: false, label: '' }),
@@ -206,7 +265,10 @@ export const aboutSchema: FieldDef[] = [
   {
     type: 'group', name: 'belief', label: 'Belief',
     fields: [
-      { type: 'text', name: 'actName', label: 'Act label' },
+      { type: 'row', fields: [
+        { type: 'text', name: 'actName', label: 'Act label' },
+        { type: 'text', name: 'actIndex', label: 'Act number' },
+      ] },
       { type: 'textarea', name: 'kicker', label: 'Kicker' },
       {
         type: 'array', name: 'rows', label: 'Belief rows', itemTitleKey: 'num',
@@ -222,7 +284,10 @@ export const aboutSchema: FieldDef[] = [
   {
     type: 'group', name: 'method', label: 'Method',
     fields: [
-      { type: 'text', name: 'actName', label: 'Act label' },
+      { type: 'row', fields: [
+        { type: 'text', name: 'actName', label: 'Act label' },
+        { type: 'text', name: 'actIndex', label: 'Act number' },
+      ] },
       titleField(),
       { type: 'textarea', name: 'copy', label: 'Copy' },
       {
@@ -242,7 +307,10 @@ export const aboutSchema: FieldDef[] = [
   {
     type: 'group', name: 'models', label: 'Models',
     fields: [
-      { type: 'text', name: 'actName', label: 'Act label' },
+      { type: 'row', fields: [
+        { type: 'text', name: 'actName', label: 'Act label' },
+        { type: 'text', name: 'actIndex', label: 'Act number' },
+      ] },
       titleField(),
       { type: 'textarea', name: 'copy', label: 'Copy' },
       {
@@ -263,7 +331,10 @@ export const aboutSchema: FieldDef[] = [
   {
     type: 'group', name: 'ecosystem', label: 'Ecosystem',
     fields: [
-      { type: 'text', name: 'actName', label: 'Act label' },
+      { type: 'row', fields: [
+        { type: 'text', name: 'actName', label: 'Act label' },
+        { type: 'text', name: 'actIndex', label: 'Act number' },
+      ] },
       titleField(),
       { type: 'textarea', name: 'copy', label: 'Copy' },
       {
@@ -274,7 +345,10 @@ export const aboutSchema: FieldDef[] = [
             { type: 'image', name: 'image', label: 'Image' },
             { type: 'image', name: 'logo', label: 'Logo' },
           ] },
-          { type: 'text', name: 'logoAlt', label: 'Logo alt / name' },
+          { type: 'row', fields: [
+            { type: 'text', name: 'logoAlt', label: 'Logo alt / name' },
+            { type: 'text', name: 'imageAlt', label: 'Background image alt text' },
+          ] },
           { type: 'textarea', name: 'text', label: 'Text' },
           { type: 'row', fields: [
             { type: 'text', name: 'moreLabel', label: 'Link label' },
@@ -287,10 +361,14 @@ export const aboutSchema: FieldDef[] = [
   {
     type: 'group', name: 'grids', label: 'GRIDS',
     fields: [
-      { type: 'text', name: 'actName', label: 'Act label' },
+      { type: 'row', fields: [
+        { type: 'text', name: 'actName', label: 'Act label' },
+        { type: 'text', name: 'actIndex', label: 'Act number' },
+      ] },
       titleField(),
       { type: 'textarea', name: 'copy', label: 'Copy' },
       { type: 'image', name: 'morphImage', label: 'Morph image' },
+      { type: 'text', name: 'morphAlt', label: 'Morph image alt text', hint: 'Describes the morph image for screen readers.' },
       { type: 'group', name: 'labelA', label: 'Label A (fragmented)', fields: [{ type: 'row', fields: [{ type: 'text', name: 'title', label: 'Title' }, { type: 'text', name: 'text', label: 'Text' }] }] },
       { type: 'group', name: 'labelB', label: 'Label B (integrated)', fields: [{ type: 'row', fields: [{ type: 'text', name: 'title', label: 'Title' }, { type: 'text', name: 'text', label: 'Text' }] }] },
       {
@@ -329,6 +407,7 @@ export const platformSchema: FieldDef[] = [
         { type: 'image', name: 'wordmark', label: 'Wordmark' },
         { type: 'image', name: 'hero', label: 'Hero / poster image' },
       ] },
+      { type: 'text', name: 'heroAlt', label: 'Hero image alt text', hint: 'Leave blank if decorative.' },
       { type: 'image', name: 'video', label: 'Hero video (mp4)' },
       { type: 'textarea', name: 'tagline', label: 'Tagline' },
       { type: 'textarea', name: 'intro', label: 'Intro' },
@@ -354,13 +433,14 @@ export const platformSchema: FieldDef[] = [
           { type: 'text', name: 'label', label: 'Category label' },
           {
             type: 'array', name: 'ventures', label: 'Ventures', itemTitleKey: 'name',
-            newItem: () => ({ name: '', logo: '', photo: '', desc: '', metrics: [] }),
+            newItem: () => ({ name: '', logo: '', photo: '', photoAlt: '', desc: '', metrics: [] }),
             fields: [
               { type: 'text', name: 'name', label: 'Name' },
               { type: 'row', fields: [
                 { type: 'image', name: 'logo', label: 'Logo (optional)' },
                 { type: 'image', name: 'photo', label: 'Photo' },
               ] },
+              { type: 'text', name: 'photoAlt', label: 'Photo alt text', hint: 'Defaults to the venture name.' },
               { type: 'textarea', name: 'desc', label: 'Description' },
               {
                 type: 'array', name: 'metrics', label: 'Metrics', flat: true,
@@ -383,6 +463,7 @@ const memberFields: FieldDef[] = [
     { type: 'text', name: 'role', label: 'Role' },
   ] },
   { type: 'image', name: 'photo', label: 'Photo' },
+  { type: 'text', name: 'photoAlt', label: 'Photo alt text', hint: 'Describes the photo for screen readers (defaults to the name).' },
   { type: 'text', name: 'linkedin', label: 'LinkedIn URL', hint: 'Full profile link. Shows a LinkedIn icon over the photo on hover.' },
   { type: 'textarea', name: 'bio', label: 'Bio' },
   { type: 'stringList', name: 'highlights', label: 'Highlights', hint: 'One per line (e.g. “20+ years”).' },
@@ -392,7 +473,10 @@ export const teamSchema: FieldDef[] = [
   {
     type: 'group', name: 'hero', label: 'Hero',
     fields: [
-      { type: 'text', name: 'actName', label: 'Act label' },
+      { type: 'row', fields: [
+        { type: 'text', name: 'actName', label: 'Act label' },
+        { type: 'text', name: 'actIndex', label: 'Act number' },
+      ] },
       { type: 'text', name: 'kicker', label: 'Kicker' },
       titleField(),
       { type: 'textarea', name: 'intro', label: 'Intro' },
@@ -407,7 +491,10 @@ export const teamSchema: FieldDef[] = [
     type: 'section', name: 'founders', label: 'Founders',
     fields: [
       { type: 'text', name: 'foundersTitle', label: 'Section heading' },
-      { type: 'text', name: 'foundersActName', label: 'Act label', hint: 'Defaults to “Founders”.' },
+      { type: 'row', fields: [
+        { type: 'text', name: 'foundersActName', label: 'Act label', hint: 'Defaults to “Founders”.' },
+        { type: 'text', name: 'foundersActIndex', label: 'Act number' },
+      ] },
       {
         type: 'array', name: 'founders', label: 'Co-founders', itemTitleKey: 'name',
         newItem: () => ({ name: '', role: '', photo: '', linkedin: '', bio: '', highlights: [] }),
@@ -419,7 +506,10 @@ export const teamSchema: FieldDef[] = [
     type: 'section', name: 'roster', label: 'Roster',
     fields: [
       { type: 'text', name: 'rosterTitle', label: 'Section heading' },
-      { type: 'text', name: 'rosterActName', label: 'Act label', hint: 'Defaults to “Leadership”.' },
+      { type: 'row', fields: [
+        { type: 'text', name: 'rosterActName', label: 'Act label', hint: 'Defaults to “Leadership”.' },
+        { type: 'text', name: 'rosterActIndex', label: 'Act number' },
+      ] },
       { type: 'textarea', name: 'rosterCopy', label: 'Copy' },
       {
         type: 'array', name: 'groups', label: 'Venture groups', itemTitleKey: 'venture',
@@ -443,7 +533,10 @@ export const contactSchema: FieldDef[] = [
   {
     type: 'group', name: 'hero', label: 'Hero',
     fields: [
-      { type: 'text', name: 'actName', label: 'Act label' },
+      { type: 'row', fields: [
+        { type: 'text', name: 'actName', label: 'Act label' },
+        { type: 'text', name: 'actIndex', label: 'Act number' },
+      ] },
       { type: 'text', name: 'kicker', label: 'Kicker' },
       titleField(),
       { type: 'textarea', name: 'intro', label: 'Intro' },
@@ -456,7 +549,15 @@ export const contactSchema: FieldDef[] = [
       { type: 'stringList', name: 'enquiryTypes', label: 'Enquiry types', hint: 'One per line.' },
       { type: 'text', name: 'presence', label: 'Presence line' },
       { type: 'textarea', name: 'formIntro', label: 'Form intro' },
-      { type: 'text', name: 'bodyActName', label: 'Form act label', hint: 'Defaults to “Get in touch”.' },
+      { type: 'row', fields: [
+        { type: 'text', name: 'bodyActName', label: 'Form act label', hint: 'Defaults to “Get in touch”.' },
+        { type: 'text', name: 'bodyActIndex', label: 'Form act number' },
+      ] },
+      { type: 'row', fields: [
+        { type: 'text', name: 'emailLabel', label: '“Email” rail heading' },
+        { type: 'text', name: 'officesLabel', label: '“Offices” rail heading' },
+        { type: 'text', name: 'presenceLabel', label: '“Presence” rail heading' },
+      ] },
     ],
   },
   {
@@ -464,10 +565,14 @@ export const contactSchema: FieldDef[] = [
     fields: [
       {
         type: 'array', name: 'offices', label: 'Offices', itemTitleKey: 'city',
-        newItem: () => ({ city: '', region: '', address: '' }),
+        newItem: () => ({ city: '', region: '', address: '', lat: 0, lng: 0 }),
         fields: [
           { type: 'row', fields: [{ type: 'text', name: 'city', label: 'City' }, { type: 'text', name: 'region', label: 'Region' }] },
           { type: 'textarea', name: 'address', label: 'Address' },
+          { type: 'row', fields: [
+            { type: 'number', name: 'lat', label: 'Map latitude', hint: 'Drops a marker on the map. Find it on Google Maps (right-click → coordinates).' },
+            { type: 'number', name: 'lng', label: 'Map longitude' },
+          ] },
         ],
       },
     ],
@@ -475,7 +580,10 @@ export const contactSchema: FieldDef[] = [
   {
     type: 'section', name: 'map', label: 'Map section',
     fields: [
-      { type: 'text', name: 'mapActName', label: 'Act label', hint: 'Defaults to “Find us”.' },
+      { type: 'row', fields: [
+        { type: 'text', name: 'mapActName', label: 'Act label', hint: 'Defaults to “Find us”.' },
+        { type: 'text', name: 'mapActIndex', label: 'Act number' },
+      ] },
       { type: 'text', name: 'mapTitle', label: 'Heading', hint: 'Defaults to “Find us”.' },
       { type: 'textarea', name: 'mapCopy', label: 'Copy' },
     ],
@@ -496,10 +604,20 @@ export const contactSchema: FieldDef[] = [
         { type: 'text', name: 'form.enquiryLabel', label: 'Enquiry-type label' },
       ] },
       { type: 'text', name: 'form.message', label: 'Message label' },
-      { type: 'text', name: 'form.submit', label: 'Submit button' },
+      { type: 'row', fields: [
+        { type: 'text', name: 'form.submit', label: 'Submit button' },
+        { type: 'text', name: 'form.submitting', label: 'Submitting button', hint: 'Shown while sending (defaults to “Sending…”).' },
+      ] },
       { type: 'text', name: 'form.successTitle', label: 'Success heading', hint: 'Followed by “, {first name}.”' },
       { type: 'textarea', name: 'form.successBody', label: 'Success message' },
       { type: 'text', name: 'form.resetLabel', label: '“Send another” button' },
+      { type: 'group', name: 'formErrors', label: 'Form error messages', fields: [
+        { type: 'text', name: 'form.errorName', label: 'Missing first name' },
+        { type: 'text', name: 'form.errorEmail', label: 'Invalid email' },
+        { type: 'text', name: 'form.errorMessage', label: 'Missing message' },
+        { type: 'text', name: 'form.errorGeneric', label: 'Generic failure' },
+        { type: 'text', name: 'form.errorNetwork', label: 'Network failure' },
+      ] },
     ],
   },
   seoGroup(),

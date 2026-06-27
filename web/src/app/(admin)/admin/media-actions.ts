@@ -18,6 +18,12 @@ async function requireUser() {
   return s
 }
 
+async function requireAdmin() {
+  const s = await requireUser()
+  if (s.role !== 'admin') throw new Error('Only admins can perform this action.')
+  return s
+}
+
 async function audit(userEmail: string, action: string, entity: string, label: string) {
   await prisma.auditLog.create({ data: { userEmail, action, entity, label } }).catch(() => {})
 }
@@ -178,7 +184,8 @@ export async function listFolders(): Promise<string[]> {
 }
 
 export async function deleteMedia(id: number): Promise<void> {
-  const user = await requireUser()
+  // Permanent + can orphan content references — admins only.
+  const user = await requireAdmin()
   const m = await prisma.media.findUnique({ where: { id } })
   if (!m) return
   if (m.url.startsWith('http')) {

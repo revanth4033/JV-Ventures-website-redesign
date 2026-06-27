@@ -12,7 +12,8 @@ const isEm = (emphasis: string | undefined, i: number): boolean => {
 /**
  * Reproduces the prototype's masked line-reveal markup:
  *   <h_ class><span class="line"><span class="line-inner [em]">text</span></span>…</h_>
- * The reveal animation is driven by useReveals() on the page scope.
+ * The reveal animation is driven by each page's GSAP scope (the `.line-inner`
+ * tween registered in the page component's useGSAP).
  */
 export function AnimatedTitle({
   title,

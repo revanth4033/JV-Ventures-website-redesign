@@ -1,11 +1,21 @@
 import { ImageResponse } from 'next/og'
 
+import { loadSiteSettings } from '@/content/db'
+
 export const alt = 'JV Ventures — Reimagining Investing'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
-// Branded social share image, generated at build (no external asset needed).
-export default function OpengraphImage() {
+// Branded social share image, generated on demand. Text comes from Site Settings
+// (Brand & SEO) so it's CMS-editable; falls back to the original copy.
+export default async function OpengraphImage() {
+  const settings = await loadSiteSettings()
+  const seo = settings.seo ?? {}
+  const title = seo.ogTitle || settings.brandName || 'JV Ventures'
+  const subtitle = seo.ogSubtitle || 'Reimagining Investing'
+  const description =
+    seo.ogDescription ||
+    'A value-creation partner building institutional platforms across education, lifesciences, healthcare & managed living.'
   return new ImageResponse(
     (
       <div
@@ -22,14 +32,13 @@ export default function OpengraphImage() {
         }}
       >
         <div style={{ fontSize: 30, letterSpacing: 8, textTransform: 'uppercase', opacity: 0.78 }}>
-          JV Ventures
+          {title}
         </div>
         <div style={{ fontSize: 88, fontWeight: 600, marginTop: 18, lineHeight: 1.04 }}>
-          Reimagining Investing
+          {subtitle}
         </div>
         <div style={{ fontSize: 30, marginTop: 28, opacity: 0.85, maxWidth: 880, lineHeight: 1.35 }}>
-          A value-creation partner building institutional platforms across education, lifesciences,
-          healthcare &amp; managed living.
+          {description}
         </div>
       </div>
     ),
