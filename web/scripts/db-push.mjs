@@ -12,6 +12,15 @@ try {
 } catch (e) {
   console.warn('[db-push] schema sync skipped (continuing build):', e instanceof Error ? e.message : e)
 }
+// Force-sync ALL page + platform content from content/inventory.json into the DB
+// on every build. inventory.json is the single source of truth for this project,
+// so the live (DB-backed) site always matches what's committed in the repo.
+// NOTE: this overwrites content edited directly via the admin CMS.
+try {
+  execSync('npm run seed', { stdio: 'inherit', env: { ...process.env, SEED_FORCE: '1' } })
+} catch (e) {
+  console.warn('[seed] content sync skipped (continuing build):', e instanceof Error ? e.message : e)
+}
 // Idempotent data self-heal (e.g. collapse "$$500M" -> "$500M"). No-op on clean rows.
 try {
   execSync('node scripts/normalize-currency.mjs', { stdio: 'inherit' })
