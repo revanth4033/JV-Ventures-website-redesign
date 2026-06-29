@@ -891,6 +891,14 @@
   .statsGrid {
     grid-template-columns: repeat(2, 1fr);
   }
+  /* Tablet: Approach reflows to a 2x2 grid (not a cramped 4-across row). */
+  .approachGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .approachCard {
+    border: 1px solid var(--line);
+    border-radius: 16px;
+  }
   .beliefRow {
     grid-template-columns: 1fr;
     gap: 2.5rem;
@@ -898,8 +906,9 @@
   .modelsSplit {
     grid-template-columns: 1fr;
   }
+  /* Tablet keeps the models image (stacked above the accordion); only phones drop it. */
   .modelsStage {
-    display: none;
+    aspect-ratio: 16 / 9;
   }
   .layersBlock {
     grid-template-columns: 1fr;
@@ -921,6 +930,10 @@
   }
   .platformsText {
     position: static;
+  }
+  /* Phones: drop the models image entirely (accordion only). */
+  .modelsStage {
+    display: none;
   }
 
   .approachGrid,

@@ -378,7 +378,11 @@
     text-align: left;
     max-width: none;
   }
+}
 
+/* Venture card keeps its 2-column (text + photo) layout on tablet like the old
+   site; only phones stack it (photo on top). */
+@media (max-width: 767px) {
   .card {
     grid-template-columns: 1fr;
   }
@@ -387,7 +391,6 @@
     order: -1;
   }
 
-  /* Single column: let the photo size itself by aspect ratio again. */
   .photo {
     height: auto;
     aspect-ratio: 1198 / 844;
