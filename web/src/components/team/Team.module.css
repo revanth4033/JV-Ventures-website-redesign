@@ -213,9 +213,12 @@
   color: #9bb6ec;
 }
 
+/* Intrinsic grid: ~4 cols on desktop, ~3 on tablet, 2 on small tablet/large
+   phone, 1 only on narrow phones — and a hard width cap so a lone card can never
+   balloon to full width (the old tablet 13000px bug). */
 .grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
   gap: clamp(1rem, 2vw, 1.6rem);
 }
 
@@ -404,12 +407,8 @@
 }
 
 /* ------------------------------------------------------ Responsive --- */
-@media (max-width: 1024px) {
-  .grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
+/* The leaders .grid uses auto-fill minmax (above), so it reflows to ~3 cols on
+   tablet and 2 on large phones without per-breakpoint overrides. */
 @media (max-width: 768px) {
   /* Founders stack into a single column on small screens */
   .founders {
@@ -423,11 +422,6 @@
 
   .founderMedia {
     width: clamp(6rem, 34%, 9rem);
-  }
-
-  /* Platform leaders become a single full-width column on mobile */
-  .grid {
-    grid-template-columns: 1fr;
   }
 
   /* overlay always visible on touch / small screens — pinned as a bottom strip

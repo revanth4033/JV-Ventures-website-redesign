@@ -10,8 +10,13 @@
 // the single deploy where you want inventory.json to win, then remove it again.
 import { execSync } from 'node:child_process'
 
-if (process.env.SEED_FORCE !== '1') {
-  console.log('[seed-on-build] SEED_FORCE not set — skipping content seed.')
+// Trim because env values set via the CLI can carry a trailing newline/CR
+// ("1\r\n" !== "1"), which would silently skip the seed.
+const seedForce = String(process.env.SEED_FORCE ?? '').trim()
+console.log(`[seed-on-build] SEED_FORCE=${JSON.stringify(process.env.SEED_FORCE)} (normalized: "${seedForce}")`)
+
+if (seedForce !== '1') {
+  console.log('[seed-on-build] SEED_FORCE not "1" — skipping content seed.')
   process.exit(0)
 }
 if (!process.env.DATABASE_URI) {
