@@ -21,13 +21,14 @@
 }
 
 /* ---------- 1. HERO ---------- */
-/* Full-bleed banner: text (left) + video (right) that the JS expands to
-   full-width on scroll. The grid spans the viewport so the expanded video runs
-   edge-to-edge, matching the old jv.ventures platform banner. */
+/* Inset banner: text (left) + video (right) sitting inside even padding on all
+   four sides. The video keeps that breathing room top/bottom/left/right, and the
+   JS still expands it (to fill the padded grid) on scroll — it never touches the
+   viewport edges. */
 .hero {
   position: relative;
   width: 100%;
-  padding-block: clamp(4rem, 10vw, 7rem) 0;
+  padding: clamp(2.5rem, 6vw, 4.5rem) clamp(1.5rem, 5vw, 5rem) clamp(3rem, 7vw, 5rem);
 }
 
 .heroGrid {
@@ -35,11 +36,11 @@
   grid-template-columns: 38% 62%;
   align-items: center;
   /* No grid gap: the gutter lives inside the text track (padding-right) so the
-     video starts exactly at the column edge — bleeds clean to the right at rest
-     and expands to a true full-bleed (no leftover gap) on scroll. */
+     video starts exactly at the column edge and, when it expands, fills the
+     padded grid cleanly with no leftover gap. */
   gap: 0;
   width: 100%;
-  min-height: min(70vh, 700px);
+  min-height: min(64vh, 640px);
 }
 
 .heroText {
@@ -50,8 +51,8 @@
   gap: 1rem;
   min-width: 0;
   overflow: hidden;
-  padding-left: clamp(1.25rem, 5vw, 6rem);
-  padding-right: clamp(2rem, 4vw, 4rem);
+  padding-left: clamp(0.5rem, 2vw, 2rem);
+  padding-right: clamp(1.75rem, 4vw, 3.5rem);
 }
 
 .heroMedia {
@@ -64,9 +65,9 @@
   display: block;
   width: 100%;
   height: 100%;
-  min-height: min(70vh, 700px);
-  max-height: min(70vh, 700px);
-  border-radius: 14px 0 0 14px;
+  min-height: min(64vh, 640px);
+  max-height: min(64vh, 640px);
+  border-radius: 16px;
   object-fit: cover;
   background: rgba(0, 0, 0, 0.2);
 }
@@ -404,8 +405,9 @@
     align-items: flex-start;
     text-align: left;
     overflow: visible;
-    padding-left: clamp(1.25rem, 6vw, 2rem);
-    padding-right: clamp(1.25rem, 6vw, 2rem);
+    /* hero padding handles the side gutters on mobile (single column) */
+    padding-left: 0;
+    padding-right: 0;
   }
 
   .tagline,
