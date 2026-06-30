@@ -230,11 +230,10 @@ export function About({ about }: { about: AboutPage; settings: SiteSettings }) {
 
       if (!reduced) {
         /* masked line reveals — hero plays on load with a stagger, rest on scroll.
-           The Four Platforms heading replays: it collapses when scrolled back up
-           and re-reveals on the way down (toggleActions instead of once). */
+           The Four Platforms section is handled separately (replaying), so skip it. */
         gsap.utils.toArray<HTMLElement>('.line-inner').forEach((el, i) => {
+          if (el.closest('#platforms')) return
           const inHero = !!el.closest('[data-hero]')
-          const replay = !!el.closest('#platforms')
           gsap.to(el, {
             y: 0,
             duration: 1.2,
@@ -242,25 +241,53 @@ export function About({ about }: { about: AboutPage; settings: SiteSettings }) {
             delay: inHero ? 0.15 + (i % 6) * 0.12 : 0,
             scrollTrigger: inHero
               ? undefined
-              : replay
-                ? { trigger: el.closest('.line'), start: 'top 88%', toggleActions: 'restart none none reverse' }
-                : { trigger: el.closest('.line'), start: 'top 88%', once: true },
+              : { trigger: el.closest('.line'), start: 'top 88%', once: true },
           })
         })
 
-        /* generic fadeInUp entrance (Four Platforms copy replays — see above) */
+        /* generic fadeInUp entrance (Four Platforms handled separately below) */
         gsap.utils.toArray<HTMLElement>('.reveal').forEach((el) => {
-          const replay = !!el.closest('#platforms')
+          if (el.closest('#platforms')) return
           gsap.to(el, {
             opacity: 1,
             y: 0,
             duration: 0.7,
             ease: EASE,
-            scrollTrigger: replay
-              ? { trigger: el, start: 'top 90%', toggleActions: 'play none none reverse' }
-              : { trigger: el, start: 'top 90%', once: true },
+            scrollTrigger: { trigger: el, start: 'top 90%', once: true },
           })
         })
+
+        /* Four Platforms — a replaying reveal: the heading lines and copy expand
+           when the section scrolls in, collapse when it scrolls back up, and
+           expand again on the next pass. fromTo gives explicit start/end states
+           so reverse is reliable (unlike a lazily-captured .to tween). */
+        const platformsSec = root.querySelector<HTMLElement>('#platforms')
+        if (platformsSec) {
+          const lines = platformsSec.querySelectorAll<HTMLElement>('.line-inner')
+          const copy = platformsSec.querySelectorAll<HTMLElement>('.reveal')
+          const tl = gsap.timeline({
+            scrollTrigger: {
+              trigger: platformsSec,
+              start: 'top 78%',
+              toggleActions: 'restart none none reverse',
+            },
+          })
+          if (lines.length) {
+            tl.fromTo(
+              lines,
+              { yPercent: 110 },
+              { yPercent: 0, duration: 1.1, ease: EASE, stagger: 0.1 },
+            )
+          }
+          if (copy.length) {
+            tl.fromTo(
+              copy,
+              { opacity: 0, y: 24 },
+              { opacity: 1, y: 0, duration: 0.7, ease: EASE },
+              '-=0.5',
+            )
+          }
+        }
 
         /* The orbital diagram (rings, spokes, dots, node entrance) is driven by
            pure CSS animations in the module — no GSAP needed here. */
