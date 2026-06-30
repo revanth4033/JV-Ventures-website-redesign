@@ -41,11 +41,13 @@ const STAT_BADGES = [
 ] as const
 
 // Stacked-card positions (front -> back) for the desktop Platforms card stack.
+// Fanned card-deck offsets — ported from the old jv.ventures portfolio deck
+// (active / next / behind / behind2). The front card auto-cycles out to the left.
 const STACK_POS = [
   { x: 0, y: 0, rotate: 0, scale: 1, zIndex: 40 },
-  { x: 22, y: 16, rotate: 5, scale: 0.95, zIndex: 30 },
-  { x: 44, y: 32, rotate: 10, scale: 0.9, zIndex: 20 },
-  { x: 66, y: 48, rotate: 15, scale: 0.85, zIndex: 10 },
+  { x: 14, y: 26, rotate: 8, scale: 1, zIndex: 30 },
+  { x: 26, y: 48, rotate: 15, scale: 1, zIndex: 20 },
+  { x: 38, y: 68, rotate: 21, scale: 1, zIndex: 10 },
 ] as const
 
 export function About({ about }: { about: AboutPage; settings: SiteSettings }) {
@@ -79,7 +81,7 @@ export function About({ about }: { about: AboutPage; settings: SiteSettings }) {
        when scrolled into view. The grid is the guaranteed fallback. */
   useEffect(() => {
     const cleanups: Array<() => void> = []
-    const mqDesktop = window.matchMedia('(min-width: 768px)')
+    const mqDesktop = window.matchMedia('(min-width: 1024px)')
 
     // ---- Mobile auto-scroll carousels ----------------------------------
     const setupCarousel = (
@@ -116,63 +118,58 @@ export function About({ about }: { about: AboutPage; settings: SiteSettings }) {
     setupCarousel(approachTrackRef.current, setApproachIdx, 2500)
     setupCarousel(platformsTrackRef.current, setPlatformsIdx, 3000)
 
-    // ---- Desktop card-stack -> grid morph ------------------------------
+    // ---- Desktop fanned card-deck -> grid morph (old jv.ventures behaviour) ---
     const container = platformsTrackRef.current
-    if (container && !reduced && mqDesktop.matches) {
+    const row = container?.parentElement ?? null
+    if (container && row && !reduced && mqDesktop.matches) {
       const cards = Array.from(container.children) as HTMLElement[]
       if (cards.length > 0) {
         const order = cards.map((_, i) => i) // order[i] = stack position of card i
         let morphed = false
 
-        // Enter stack mode: absolutely overlap the cards and size the wrapper.
+        // Stage A: a fanned, auto-cycling deck (text sticky left, deck right).
+        row.classList.add(styles.platformsRowDeck)
         container.classList.add(styles.stackActive)
         gsap.set(cards, { clearProps: 'all' })
-        const wrapHeight = Math.max(...cards.map((c) => c.offsetHeight))
-        container.style.height = `${wrapHeight + 56}px`
         cards.forEach((c) => {
-          c.style.boxShadow = '0 24px 50px rgba(0, 0, 0, 0.4)'
+          c.style.boxShadow = '0 30px 60px rgba(0, 0, 0, 0.45)'
         })
         cards.forEach((c, i) => {
           const p = STACK_POS[Math.min(order[i], STACK_POS.length - 1)]
-          gsap.set(c, { x: p.x, y: p.y, rotate: p.rotate, scale: p.scale, zIndex: p.zIndex, opacity: 1 })
+          gsap.set(c, { x: p.x, y: p.y, rotate: p.rotate, zIndex: p.zIndex, opacity: 1 })
         })
 
+        // Front card slides out to the left, then reappears at the back.
         const cycle = () => {
           if (morphed) return
-          const frontIdx = order.indexOf(0)
-          const card = cards[frontIdx]
+          const card = cards[order.indexOf(0)]
           gsap.to(card, {
-            x: -360,
-            rotate: -22,
+            x: -90,
+            y: 8,
+            rotate: -9,
             opacity: 0,
-            duration: 0.7,
-            ease: 'power2.in',
+            duration: 1.5,
+            ease: 'power2.inOut',
             onComplete: () => {
               if (morphed) return
               for (let i = 0; i < order.length; i++) {
                 order[i] = order[i] === 0 ? STACK_POS.length - 1 : order[i] - 1
               }
               const back = STACK_POS[STACK_POS.length - 1]
-              gsap.set(card, {
-                x: back.x,
-                y: back.y,
-                rotate: back.rotate,
-                scale: back.scale,
-                zIndex: back.zIndex,
-                opacity: 0,
-              })
-              gsap.to(card, { opacity: 1, duration: 0.6, ease: EASE })
+              gsap.set(card, { x: back.x, y: back.y, rotate: back.rotate, zIndex: back.zIndex, opacity: 0 })
+              gsap.to(card, { opacity: 1, duration: 0.9, ease: EASE })
               cards.forEach((c, i) => {
                 if (c === card) return
                 const p = STACK_POS[Math.min(order[i], STACK_POS.length - 1)]
-                gsap.to(c, { x: p.x, y: p.y, rotate: p.rotate, scale: p.scale, zIndex: p.zIndex, duration: 0.6, ease: EASE })
+                gsap.to(c, { x: p.x, y: p.y, rotate: p.rotate, zIndex: p.zIndex, duration: 1.5, ease: 'power2.inOut' })
               })
             },
           })
         }
-        const intervalId = window.setInterval(cycle, 6500)
+        const intervalId = window.setInterval(cycle, 7000)
         cleanups.push(() => window.clearInterval(intervalId))
 
+        // Stage B: on scroll, FLIP the deck into the full-width 4-up grid.
         const morphToGrid = () => {
           if (morphed) return
           morphed = true
@@ -180,7 +177,7 @@ export function About({ about }: { about: AboutPage; settings: SiteSettings }) {
           gsap.killTweensOf(cards)
           const first = cards.map((c) => c.getBoundingClientRect())
           container.classList.remove(styles.stackActive)
-          container.style.height = ''
+          row.classList.remove(styles.platformsRowDeck)
           cards.forEach((c) => {
             gsap.set(c, { clearProps: 'all' })
             c.style.boxShadow = ''
@@ -190,13 +187,15 @@ export function About({ about }: { about: AboutPage; settings: SiteSettings }) {
             const dx = first[i].left - last[i].left
             const dy = first[i].top - last[i].top
             const sx = last[i].width ? first[i].width / last[i].width : 1
+            const sy = last[i].height ? first[i].height / last[i].height : 1
             gsap.fromTo(
               c,
-              { x: dx, y: dy, scale: sx, opacity: 0.4, transformOrigin: 'top left' },
+              { x: dx, y: dy, scaleX: sx, scaleY: sy, opacity: 0.5, transformOrigin: 'top left' },
               {
                 x: 0,
                 y: 0,
-                scale: 1,
+                scaleX: 1,
+                scaleY: 1,
                 opacity: 1,
                 duration: 0.8,
                 ease: EASE,
@@ -206,13 +205,12 @@ export function About({ about }: { about: AboutPage; settings: SiteSettings }) {
             )
           })
         }
-        const st = ScrollTrigger.create({ trigger: container, start: 'top 70%', once: true, onEnter: morphToGrid })
+        const st = ScrollTrigger.create({ trigger: row, start: 'top 28%', once: true, onEnter: morphToGrid })
         cleanups.push(() => st.kill())
 
-        // Reset any inline state if the effect tears down (e.g. reduced toggles).
         cleanups.push(() => {
           container.classList.remove(styles.stackActive)
-          container.style.height = ''
+          row.classList.remove(styles.platformsRowDeck)
           gsap.killTweensOf(cards)
           gsap.set(cards, { clearProps: 'all' })
           cards.forEach((c) => {

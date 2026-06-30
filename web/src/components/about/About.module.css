@@ -568,15 +568,30 @@
 /* Old design: two-column layout — sticky left-aligned text block (col-lg-5) +
    the platform cards on the right (col-lg-7, an animated stack that morphs into
    the grid on scroll; the grid is the guaranteed fallback). */
-/* Old end-state: heading block on top, then a full-width 4-up row of cards. */
+/* End-state (and tablet/mobile): heading block on top, then a full-width grid. */
 .platformsRow {
   display: block;
+}
+
+/* Stage A on desktop: 2-column — sticky text left, fanned card deck right. */
+.platformsRowDeck {
+  display: grid;
+  grid-template-columns: 5fr 7fr;
+  gap: clamp(2rem, 5vw, 48px);
+  align-items: center;
 }
 
 .platformsText {
   text-align: left;
   max-width: 46ch;
   margin-bottom: clamp(2rem, 4vw, 3rem);
+}
+
+.platformsRowDeck .platformsText {
+  position: sticky;
+  top: 6rem;
+  max-width: 40ch;
+  margin-bottom: 0;
 }
 
 /* Heading: "Four Platforms." on line 1, "One Integrated Ecosystem." bold on
@@ -602,20 +617,35 @@
   gap: clamp(1rem, 1.5vw, 1.3rem);
 }
 
-/* Stack mode (desktop, JS + not reduced-motion): cards overlap absolutely; the
-   GSAP runtime supplies the per-card transforms. */
+/* Deck mode (desktop): cards become a fanned, portrait, image-only stack centred
+   in the right column; GSAP supplies the per-card transforms. */
 .platformsCards.stackActive {
   display: block;
   position: relative;
   overflow: visible;
+  min-height: 560px;
 }
 
 .platformsCards.stackActive > * {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
+  top: 24px;
+  left: 50%;
+  margin-left: -175px;
+  width: 350px;
+  height: 460px;
   will-change: transform;
+}
+
+/* In the deck the card shows only its image (full-bleed portrait); the body and
+   the rounded image height are suppressed until the flip to the grid. */
+.platformsCards.stackActive .platformImg {
+  height: 100%;
+}
+.platformsCards.stackActive .platformBody {
+  display: none;
+}
+.platformsCards.stackActive .platformCard {
+  border-radius: 18px;
 }
 
 .platformCard {
