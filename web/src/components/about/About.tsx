@@ -257,6 +257,29 @@ export function About({ about }: { about: AboutPage; settings: SiteSettings }) {
           })
         })
 
+        /* Four Platforms — collapse / re-expand on scroll. The first masked
+           reveal is handled by the generic loops above (proven reliable); here we
+           only fade+slide the WHOLE text block away when the section leaves the
+           viewport and bring it back when it re-enters, in both directions. The
+           block's resting state is fully visible, so the heading can never be left
+           stranded hidden even if a trigger never fires. */
+        const platformsSec = root.querySelectorAll<HTMLElement>('#platforms')[0]
+        const platformsText = platformsSec?.querySelector<HTMLElement>(`.${styles.platformsText}`)
+        if (platformsSec && platformsText) {
+          // visible (progress 0) -> collapsed (progress 1)
+          const collapseTl = gsap.timeline({ paused: true })
+          collapseTl.to(platformsText, { autoAlpha: 0, y: 44, duration: 0.6, ease: EASE })
+          ScrollTrigger.create({
+            trigger: platformsSec,
+            start: 'top 76%',
+            end: 'bottom 24%',
+            onEnter: () => collapseTl.reverse(),
+            onEnterBack: () => collapseTl.reverse(),
+            onLeave: () => collapseTl.play(),
+            onLeaveBack: () => collapseTl.play(),
+          })
+        }
+
         /* The orbital diagram (rings, spokes, dots, node entrance) is driven by
            pure CSS animations in the module — no GSAP needed here. */
       }
