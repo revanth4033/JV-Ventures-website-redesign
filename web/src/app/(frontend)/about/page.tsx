@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 
 import { About } from '@/components/about/About'
+import { ClosingBridge } from '@/components/ClosingBridge'
 import { loadAboutPage, loadSiteSettings } from '@/content/db'
 
 export const revalidate = 30
@@ -22,5 +23,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function AboutPage() {
   const [about, settings] = await Promise.all([loadAboutPage(), loadSiteSettings()])
-  return <About about={about} settings={settings} />
+  return (
+    <>
+      <About about={about} settings={settings} />
+      <ClosingBridge settings={settings} id="closing" />
+    </>
+  )
 }

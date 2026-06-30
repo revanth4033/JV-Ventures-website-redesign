@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 
+import { ClosingBridge } from '@/components/ClosingBridge'
 import { Team } from '@/components/team/Team'
 import { loadSiteSettings, loadTeamPage } from '@/content/db'
 
@@ -22,5 +23,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function TeamPage() {
   const [team, settings] = await Promise.all([loadTeamPage(), loadSiteSettings()])
-  return <Team team={team} settings={settings} />
+  return (
+    <>
+      <Team team={team} settings={settings} />
+      <ClosingBridge settings={settings} id="closing" />
+    </>
+  )
 }

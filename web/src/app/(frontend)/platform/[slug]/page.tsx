@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
+import { ClosingBridge } from '@/components/ClosingBridge'
 import { JsonLd } from '@/components/JsonLd'
 import { Platform } from '@/components/platform/Platform'
 import { loadPlatform, loadPlatforms, loadSiteSettings } from '@/content/db'
@@ -53,6 +54,7 @@ export default async function PlatformPage({ params }: { params: Promise<{ slug:
     <>
       <JsonLd data={ld} />
       <Platform platform={platform} others={others} settings={settings} />
+      <ClosingBridge settings={settings} id="closing" />
     </>
   )
 }
