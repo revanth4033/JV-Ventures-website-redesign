@@ -15,8 +15,21 @@ import styles from './About.module.css'
 // Accessible name for a CSS-background image without converting it to <img>.
 const imgA11y = (alt?: string) => (alt ? { role: 'img' as const, 'aria-label': alt } : {})
 
-// The four orbit nodes sit at the cardinal points around the JV mark.
-const ORBIT_DIRS = ['top', 'right', 'bottom', 'left'] as const
+// The four ecosystem nodes sit at the cardinal points around the JV mark
+// (top, right, bottom, left), matching the old jv-scene positions.
+const ORBIT_POS = [
+  { left: '50%', top: '10%' },
+  { left: '88%', top: '50%' },
+  { left: '50%', top: '88%' },
+  { left: '12%', top: '50%' },
+] as const
+// Gradient dots sit on each spoke between the centre and its node.
+const ORBIT_DOTS = [
+  { left: '50%', top: '16.67%' },
+  { left: '83.33%', top: '50%' },
+  { left: '50%', top: '83.33%' },
+  { left: '16.67%', top: '50%' },
+] as const
 
 // Decorative stat-card badges (old design). Keyed by stat index — purely
 // presentational, so they live here rather than in the CMS ledger items.
@@ -243,26 +256,8 @@ export function About({ about }: { about: AboutPage; settings: SiteSettings }) {
           })
         })
 
-        /* orbital ecosystem — nodes spring outward from the centre with a stagger */
-        const nodes = gsap.utils.toArray<HTMLElement>(`.${styles.node}`)
-        const dist = 90
-        const inward: Record<string, { x?: number; y?: number }> = {
-          top: { y: dist },
-          right: { x: -dist },
-          bottom: { y: -dist },
-          left: { x: dist },
-        }
-        nodes.forEach((n, i) => {
-          const dir = n.dataset.dir || 'top'
-          gsap.from(n, {
-            opacity: 0,
-            scale: 0.4,
-            ...inward[dir],
-            duration: 0.9,
-            ease: 'back.out(1.6)',
-            delay: 1.2 + i * 0.18,
-          })
-        })
+        /* The orbital diagram (rings, spokes, dots, node entrance) is driven by
+           pure CSS animations in the module — no GSAP needed here. */
       }
 
       /* stat counters */
@@ -309,31 +304,50 @@ export function About({ about }: { about: AboutPage; settings: SiteSettings }) {
             </div>
 
             <div className={`${styles.scene} reveal`} aria-hidden={(hero?.orbit ?? []).length === 0}>
-              <div className={styles.ringOuter} />
-              <div className={styles.ringInner} />
-              <div className={styles.spokes} />
+              {/* static dashed rings */}
+              <div className={styles.dottedRing} />
+              <div className={styles.outerRing} />
+              {/* rotating glow line that sweeps around through all four nodes */}
+              <div className={styles.diag} />
+              {/* spinning bright arcs */}
+              <div className={styles.ringArc} />
+              <div className={styles.ringArc2} />
+              {/* spokes from centre to each node */}
+              <svg className={styles.spokesSvg} viewBox="0 0 480 480" aria-hidden="true">
+                <line x1="240" y1="240" x2="240" y2="80" stroke="rgba(95,168,255,0.6)" strokeWidth="1" />
+                <line x1="240" y1="240" x2="400" y2="240" stroke="rgba(95,168,255,0.6)" strokeWidth="1" />
+                <line x1="240" y1="240" x2="240" y2="400" stroke="rgba(95,168,255,0.6)" strokeWidth="1" />
+                <line x1="240" y1="240" x2="80" y2="240" stroke="rgba(95,168,255,0.6)" strokeWidth="1" />
+              </svg>
+              {/* gradient dots on the spokes */}
+              {ORBIT_DOTS.map((d) => (
+                <span className={styles.dot} style={{ left: d.left, top: d.top }} key={`${d.left}-${d.top}`} />
+              ))}
+              {/* centre logo ring */}
               <div className={styles.core}>
                 {hero?.heroImage ? (
-                  <img
-                    src={asset(hero.heroImage)}
-                    alt={hero.heroImageAlt || ''}
-                    loading="lazy"
-                    decoding="async"
-                  />
+                  <img src={asset(hero.heroImage)} alt={hero.heroImageAlt || ''} loading="lazy" decoding="async" />
                 ) : null}
               </div>
-              {(hero?.orbit ?? []).slice(0, 4).map((node, i) => (
-                <div
-                  className={styles.node}
-                  data-dir={ORBIT_DIRS[i] ?? 'top'}
-                  key={node.label}
-                >
-                  <span className={styles.nodeIcon}>
-                    <img src={asset(node.image)} alt="" loading="lazy" decoding="async" />
-                  </span>
-                  <span className={styles.nodeLabel}>{node.label}</span>
-                </div>
-              ))}
+              {/* the four ecosystem nodes (label above for the top one, below for the rest) */}
+              {(hero?.orbit ?? []).slice(0, 4).map((node, i) => {
+                const pos = ORBIT_POS[i] ?? ORBIT_POS[0]
+                const labelAbove = i === 0
+                const label = <span className={styles.nodeLabel}>{node.label}</span>
+                return (
+                  <div
+                    className={styles.node}
+                    style={{ left: pos.left, top: pos.top, animationDelay: `${1.5 + i * 0.15}s` }}
+                    key={node.label}
+                  >
+                    {labelAbove ? label : null}
+                    <span className={styles.nodeIcon}>
+                      <img src={asset(node.image)} alt="" loading="lazy" decoding="async" />
+                    </span>
+                    {labelAbove ? null : label}
+                  </div>
+                )
+              })}
             </div>
           </div>
         </section>

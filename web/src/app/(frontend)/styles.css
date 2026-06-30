@@ -31,8 +31,8 @@ body {
   font-family: "Montserrat", sans-serif;
   /* signature gradient matched to the old site's subtle mid-blue (#194798):
      a brighter hero top settling onto the old brand blue, not a deep navy */
-  background: linear-gradient(178.79deg, #2456ac 0%, #1f4c9c 13%, #194798 60%) fixed;
-  background-color: #194798;
+  background: linear-gradient(178.79deg, #2769dd 0%, #133778 14%, #0c2758 85%) fixed;
+  background-color: #133778;
   color: var(--text);
   font-weight: 400;
   -webkit-font-smoothing: antialiased;

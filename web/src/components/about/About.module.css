@@ -97,25 +97,30 @@
   color: #fff;
 }
 
+/* Old design: lighter-weight eyebrow on one line (not a bold, wide-tracked block). */
 .heroSub {
-  margin-top: 1.4rem;
-  font-size: clamp(0.92rem, 1.4vw, 1.1rem);
-  font-weight: 600;
+  margin-top: 1.1rem;
+  font-size: clamp(0.82rem, 1.25vw, 1.02rem);
+  font-weight: 400;
   color: #fff;
   text-transform: uppercase;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.06em;
 }
 
 .heroSub :global(em) {
   font-style: normal;
 }
 
+/* Old design spreads the copy: eyebrow up top, body lower down the hero. */
 .heroIntro {
-  margin-top: 1.3rem;
+  margin-top: 1.2rem;
   font-size: clamp(0.98rem, 1.2vw, 1.08rem);
   line-height: 1.7;
   color: rgba(255, 255, 255, 0.82);
-  max-width: 54ch;
+  max-width: 52ch;
+}
+.heroIntro:first-of-type {
+  margin-top: clamp(2.5rem, 9vh, 6rem);
 }
 
 .chips {
@@ -137,149 +142,217 @@
   background: var(--surface);
 }
 
-/* ---- orbital ecosystem diagram ---- */
+/* ---- orbital ecosystem diagram — faithful port of the old jv-scene ---- */
 .scene {
   position: relative;
-  width: min(100%, 460px);
+  width: min(100%, 480px);
   aspect-ratio: 1;
   margin-inline: auto;
 }
-
-.ringOuter,
-.ringInner {
+.scene > * {
   position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
-.ringOuter {
-  animation: spin 26s linear infinite;
-}
-
-.ringInner {
-  inset: 16%;
-  border-style: dashed;
-  border-color: rgba(235, 127, 131, 0.4);
-  animation: spinRev 20s linear infinite;
-}
-
-.spokes {
-  position: absolute;
-  inset: 12%;
-  border-radius: 50%;
-}
-
-.spokes::before,
-.spokes::after {
-  content: '';
-  position: absolute;
-  left: 50%;
+/* static dashed rings */
+.dottedRing,
+.outerRing {
   top: 50%;
-  background: linear-gradient(transparent, rgba(255, 255, 255, 0.22), transparent);
-}
-
-.spokes::before {
-  width: 1px;
-  height: 100%;
-  transform: translate(-50%, -50%);
-}
-
-.spokes::after {
-  width: 100%;
-  height: 1px;
-  transform: translate(-50%, -50%);
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
-}
-
-.core {
-  position: absolute;
   left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 34%;
   aspect-ratio: 1;
   border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: radial-gradient(circle at 38% 32%, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.04) 65%);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  box-shadow: 0 0 50px rgba(39, 105, 221, 0.45);
+  border: 1px dashed rgba(255, 255, 255, 0.17);
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  animation: orbFade 0.7s ease 1.2s forwards;
+}
+.dottedRing {
+  width: 66.7%;
+}
+.outerRing {
+  width: 45.8%;
+  border-width: 0.75px;
+  animation-delay: 1.3s;
 }
 
+/* spinning bright arcs — the "line travelling around the circle" */
+.ringArc,
+.ringArc2 {
+  top: 50%;
+  left: 50%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1.5px solid transparent;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+}
+.ringArc {
+  width: 30.8%;
+  border-top-color: #1e90ff;
+  border-right-color: rgba(30, 144, 255, 0.3);
+  animation: orbFade 0.5s ease 0.9s forwards, orbSpinC 4s linear 0.9s infinite;
+}
+.ringArc2 {
+  width: 34.4%;
+  border-width: 0.75px;
+  border-bottom-color: rgba(30, 144, 255, 0.4);
+  border-left-color: rgba(30, 144, 255, 0.15);
+  animation: orbFade 0.5s ease 1.1s forwards, orbSpinRevC 6s linear 1.1s infinite;
+}
+
+/* rotating diagonal glow line that sweeps through all four nodes */
+.diag {
+  inset: 0;
+  opacity: 0;
+  animation: orbFade 0.5s ease 1.4s forwards, orbSpin 10s linear 1.4s infinite;
+}
+.diag::before,
+.diag::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 41.7%;
+  height: 1px;
+  transform-origin: left center;
+  background: linear-gradient(90deg, transparent, rgba(30, 144, 255, 0.55), transparent);
+}
+.diag::before {
+  transform: rotate(45deg);
+}
+.diag::after {
+  transform: rotate(225deg);
+}
+
+/* spokes: centre -> node */
+.spokesSvg {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.spokesSvg line {
+  opacity: 0;
+  animation: orbFade 0.6s ease 1.9s forwards;
+}
+
+/* gradient dots on the spokes */
+.dot {
+  width: 3.1%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0%, #8fa6cd 22%, #1f4e9b 100%);
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  z-index: 3;
+  animation: orbFade 0.5s ease 2s forwards;
+}
+
+/* centre logo ring */
+.core {
+  top: 50%;
+  left: 50%;
+  width: 37.5%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  background: #1d4fa7;
+  border: 2px solid rgba(77, 163, 255, 0.43);
+  box-shadow: 0 0 24px 2px rgba(59, 130, 246, 0.35);
+  opacity: 0;
+  z-index: 4;
+  animation: orbFade 0.8s ease 0.2s forwards;
+}
 .core img {
-  width: 64%;
+  width: 70%;
   height: auto;
   object-fit: contain;
 }
 
+/* nodes — outlined circles, label above (top) / below (others) */
 .node {
-  position: absolute;
-  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.45rem;
-  width: max-content;
+  gap: 0.5rem;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  z-index: 5;
+  animation: orbPop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
-
-.node[data-dir='top'] {
-  left: 50%;
-  top: 0;
-}
-.node[data-dir='bottom'] {
-  left: 50%;
-  top: 100%;
-}
-.node[data-dir='left'] {
-  left: 0;
-  top: 50%;
-}
-.node[data-dir='right'] {
-  left: 100%;
-  top: 50%;
-}
-
 .nodeIcon {
-  display: grid;
-  place-items: center;
-  width: clamp(46px, 8vw, 62px);
+  width: clamp(44px, 12.9%, 62px);
   aspect-ratio: 1;
   border-radius: 50%;
-  background: rgba(12, 39, 88, 0.85);
-  border: 1px solid var(--line);
+  border: 2px solid rgba(255, 253, 253, 0.35);
+  display: grid;
+  place-items: center;
 }
-
 .nodeIcon img {
   width: 55%;
   height: auto;
   object-fit: contain;
 }
-
 .nodeLabel {
-  font-size: 0.62rem;
+  font-size: clamp(0.55rem, 1.4vw, 0.7rem);
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.9);
+  color: #fff;
   white-space: nowrap;
 }
 
-@keyframes spin {
+@keyframes orbFade {
+  to {
+    opacity: 1;
+  }
+}
+@keyframes orbSpin {
   to {
     transform: rotate(360deg);
   }
 }
-@keyframes spinRev {
+@keyframes orbSpinC {
+  from {
+    transform: translate(-50%, -50%) rotate(0);
+  }
   to {
-    transform: rotate(-360deg);
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+@keyframes orbSpinRevC {
+  from {
+    transform: translate(-50%, -50%) rotate(0);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(-360deg);
+  }
+}
+@keyframes orbPop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.4);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ringOuter,
-  .ringInner {
-    animation: none;
+  .dottedRing,
+  .outerRing,
+  .diag,
+  .ringArc,
+  .ringArc2,
+  .core,
+  .node,
+  .dot,
+  .spokesSvg line {
+    animation: none !important;
+    opacity: 1 !important;
   }
 }
 
